@@ -1,5 +1,7 @@
 bin/
 obj/
+TestConsoleApp.sln
+TestConsoleApp/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/

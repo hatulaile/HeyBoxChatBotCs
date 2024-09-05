@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeyBoxBotCs.Api", "HeyBoxBotCs.Api\HeyBoxBotCs.Api.csproj", "{D5988F7E-1A09-42B6-8F55-E461845837CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeyBoxBotCs.Api", "HeyBoxChatBotCs.Api\HeyBoxBotCs.Api.csproj", "{D5988F7E-1A09-42B6-8F55-E461845837CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
