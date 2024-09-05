@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace HeyBoxBotCs.Api.Interfaces;
+namespace HeyBoxChatBotCs.Api.Interfaces;
 
 public interface IConfig
 {

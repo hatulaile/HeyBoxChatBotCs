@@ -1,7 +1,7 @@
-using HeyBoxBotCs.Api.Enums;
-using HeyBoxBotCs.Api.Features.Network;
+using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Features.Network;
 
-namespace HeyBoxBotCs.Api.Features.Bot;
+namespace HeyBoxChatBotCs.Api.Features.Bot;
 
 public static class BotHttpUri
 {

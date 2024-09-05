@@ -1,6 +1,6 @@
-using HeyBoxBotCs.Api.Interfaces;
+using HeyBoxChatBotCs.Api.Interfaces;
 
-namespace HeyBoxBotCs.Api.Features
+namespace HeyBoxChatBotCs.Api.Features
 {
     public sealed class PluginPriorityComparer : IComparer<IPlugin<IConfig>>
     {

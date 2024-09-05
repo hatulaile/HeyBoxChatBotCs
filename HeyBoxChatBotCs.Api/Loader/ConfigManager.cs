@@ -1,11 +1,11 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
-using HeyBoxBotCs.Api.Extensions;
-using HeyBoxBotCs.Api.Features;
-using HeyBoxBotCs.Api.Interfaces;
+using HeyBoxChatBotCs.Api.Extensions;
+using HeyBoxChatBotCs.Api.Features;
+using HeyBoxChatBotCs.Api.Interfaces;
 
-namespace HeyBoxBotCs.Api.Loader;
+namespace HeyBoxChatBotCs.Api.Loader;
 
 public static class ConfigManager
 {

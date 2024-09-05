@@ -1,4 +1,4 @@
-namespace HeyBoxBotCs.Api.Enums;
+namespace HeyBoxChatBotCs.Api.Enums;
 #pragma warning disable CA1069
 public enum PluginPriority
 {

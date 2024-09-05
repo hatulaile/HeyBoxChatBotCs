@@ -1,6 +1,6 @@
-using HeyBoxBotCs.Api.EventArgs.Interfaces;
+using HeyBoxChatBotCs.Api.EventArgs.Interfaces;
 
-namespace HeyBoxBotCs.Api.EventArgs.User;
+namespace HeyBoxChatBotCs.Api.EventArgs.User;
 
 public class UserSendMessageEventArgs : IUserEvent
 {

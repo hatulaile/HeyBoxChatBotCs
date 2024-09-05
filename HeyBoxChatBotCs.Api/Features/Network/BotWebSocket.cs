@@ -1,13 +1,18 @@
 using System.Net.WebSockets;
 
-namespace HeyBoxBotCs.Api.Features.Network;
+namespace HeyBoxChatBotCs.Api.Features.Network;
 
 public class BotWebSocket : IDisposable
 {
+    private const int MAX_RETRY_COUNT = 10;
+
+    private const int ERROR_SLEEP_TIME = 10000;
+
     private const int ACK_SLEEP_TIME = 25000;
 
-    private const string QUERY = "client_type=heybox_chat&x_client_type=web&os_type=web&" +
-                                 "x_os_type=bot&x_app=heybox_chat&chat_os_type=bot&chat_version=999.0.0";
+    private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=999.0.0";
+    //"client_type=heybox_chat&x_client_type=web&os_type=web&" +
+    // "x_os_type=bot&x_app=heybox_chat&chat_os_type=bot&chat_version=999.0.0";
 
     public readonly Uri WebsocketUri = new Uri("wss://chat.xiaoheihe.cn/chatroom/ws/connect");
 
@@ -23,7 +28,7 @@ public class BotWebSocket : IDisposable
 
     public ClientWebSocket? WebSocket { get; private set; }
 
-    public void Start()
+    public void Start(int retryCount = 0)
     {
         if (WebSocket?.State is WebSocketState.Open)
         {
@@ -37,13 +42,13 @@ public class BotWebSocket : IDisposable
 
             WebSocket.Options.SetRequestHeader("token", Bot.Token);
 
-            WebSocket.ConnectAsync(new Uri(WebsocketUri, QUERY), default);
+            WebSocket.ConnectAsync(new Uri(WebsocketUri, QUERY), default).Wait();
 
             new Thread(ReceiveMessage)
             {
                 IsBackground = true,
                 Name = "Websocket Receive Message"
-            }.Start();
+            }.Start(WebSocketCts);
 
             new Thread(Ack)
             {
@@ -54,32 +59,41 @@ public class BotWebSocket : IDisposable
         catch (Exception e)
         {
             Log.Error(e);
+            if (retryCount == MAX_RETRY_COUNT)
+            {
+                Log.Error("由于失败过多次,关闭 BOT !");
+                Environment.Exit(20000);
+            }
+
+            Log.Error($"由于第{retryCount}/{MAX_RETRY_COUNT}次服务器连接错误,将于{ERROR_SLEEP_TIME}毫秒后重连!");
+            Thread.Sleep(ERROR_SLEEP_TIME);
+            Start(retryCount + 1);
         }
     }
 
     protected void ReceiveMessage(object? ctsObject)
     {
-        if (ctsObject is not CancellationToken cts)
-        {
-            Log.Error("ReceiveMessage方法传值错误,程序中断!!!!");
-            //todo 退出值带重设
-            Environment.Exit(25000);
-            return;
-        }
-
-        while (true)
-        {
-            if (cts.IsCancellationRequested)
-            {
-                Log.Debug("已取消接收信息进程!");
-                break;
-            }
-        }
+        // if (ctsObject is not CancellationTokenSource cts)
+        // {
+        //     Log.Error("ReceiveMessage方法传值错误,程序中断!!!!");
+        //     //todo 退出值带重设
+        //     Environment.Exit(25000);
+        //     return;
+        // }
+        //
+        // while (true)
+        // {
+        //     if (cts.IsCancellationRequested)
+        //     {
+        //         Log.Debug("已取消接收信息进程!");
+        //         break;
+        //     }
+        // }
     }
 
     protected void Ack(object? ctsObject)
     {
-        if (ctsObject is not CancellationToken cts)
+        if (ctsObject is not CancellationTokenSource cts)
         {
             Log.Error("Ack方法传值错误,程序中断!!!!");
             //todo 退出值带重设
@@ -103,6 +117,7 @@ public class BotWebSocket : IDisposable
             else
             {
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
+                cts.Cancel();
                 Start();
             }
 

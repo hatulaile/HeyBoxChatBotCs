@@ -1,4 +1,4 @@
-namespace HeyBoxBotCs.Api.Exceptions;
+namespace HeyBoxChatBotCs.Api.Exceptions;
 
 public class InvalidTypeException : ArgumentException
 {

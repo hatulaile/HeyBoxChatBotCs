@@ -1,4 +1,4 @@
-namespace HeyBoxBotCs.Api.Enums;
+namespace HeyBoxChatBotCs.Api.Enums;
 
 public enum BotAction
 {

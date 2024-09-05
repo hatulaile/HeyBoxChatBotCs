@@ -1,4 +1,4 @@
-namespace HeyBoxBotCs.Api.Features;
+namespace HeyBoxChatBotCs.Api.Features;
 
 //todo User 未完成
 public class User

@@ -1,4 +1,4 @@
-namespace HeyBoxBotCs.Api;
+namespace HeyBoxChatBotCs.Api;
 
 public static class Misc
 {

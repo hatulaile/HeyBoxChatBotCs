@@ -1,7 +1,7 @@
 using System.Reflection;
-using HeyBoxBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Enums;
 
-namespace HeyBoxBotCs.Api.Interfaces;
+namespace HeyBoxChatBotCs.Api.Interfaces;
 
 public interface IPlugin<out TConfig> : IComparable<IPlugin<IConfig>>
     where TConfig : IConfig

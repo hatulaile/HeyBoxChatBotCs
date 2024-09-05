@@ -1,6 +1,6 @@
-using HeyBoxBotCs.Api.EventArgs.User;
+using HeyBoxChatBotCs.Api.EventArgs.User;
 
-namespace HeyBoxBotCs.Api.Features.Events;
+namespace HeyBoxChatBotCs.Api.Features.Events;
 
 public static class User
 {

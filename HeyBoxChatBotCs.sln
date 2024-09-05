@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeyBoxBotCs.Api", "HeyBoxChatBotCs.Api\HeyBoxBotCs.Api.csproj", "{D5988F7E-1A09-42B6-8F55-E461845837CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{D6534ACA-BBEB-4785-BDF1-5B6F394C6B30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{0CF6EE0A-DA11-402C-83A6-2105127F081F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{D5988F7E-1A09-42B6-8F55-E461845837CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5988F7E-1A09-42B6-8F55-E461845837CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5988F7E-1A09-42B6-8F55-E461845837CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6534ACA-BBEB-4785-BDF1-5B6F394C6B30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6534ACA-BBEB-4785-BDF1-5B6F394C6B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6534ACA-BBEB-4785-BDF1-5B6F394C6B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6534ACA-BBEB-4785-BDF1-5B6F394C6B30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CF6EE0A-DA11-402C-83A6-2105127F081F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CF6EE0A-DA11-402C-83A6-2105127F081F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CF6EE0A-DA11-402C-83A6-2105127F081F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CF6EE0A-DA11-402C-83A6-2105127F081F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,4 @@
-namespace HeyBoxBotCs.Api.Extensions;
+namespace HeyBoxChatBotCs.Api.Extensions;
 
 public static class LogExtensions
 {

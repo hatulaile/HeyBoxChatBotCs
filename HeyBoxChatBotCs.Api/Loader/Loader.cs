@@ -1,8 +1,8 @@
 using System.Reflection;
-using HeyBoxBotCs.Api.Features;
-using HeyBoxBotCs.Api.Interfaces;
+using HeyBoxChatBotCs.Api.Features;
+using HeyBoxChatBotCs.Api.Interfaces;
 
-namespace HeyBoxBotCs.Api.Loader;
+namespace HeyBoxChatBotCs.Api.Loader;
 
 public class Loader
 {
@@ -26,8 +26,8 @@ public class Loader
     {
         LoadDependencies();
         LoadPlugins();
-        EnablePlugins();
         ConfigManager.Reload();
+        EnablePlugins();
     }
 
     public static Assembly? LoadAssembly(string path)
@@ -71,6 +71,8 @@ public class Loader
                 $"加载插件 {plugin.Name}@{(plugin.Version is not null ? $"{plugin.Version.Major}.{plugin.Version.Minor}.{plugin.Version.Build}" : attribute is not null ? attribute.InformationalVersion : string.Empty)}");
             Plugins.Add(plugin);
         }
+
+        Log.Info("插件加载完毕~");
     }
 
     private static IPlugin<IConfig>? CreatePlugin(Assembly assembly)
@@ -82,11 +84,13 @@ public class Loader
                 if (type.IsAbstract)
                 {
                     Log.Debug($"\"{type.FullName}\"是抽象类,跳过!");
+                    continue;
                 }
 
                 if (!IsDerivedFromPlugin(type))
                 {
                     Log.Debug($"\"{type.FullName}\"不是不是一个插件,跳过!");
+                    continue;
                 }
 
                 Log.Debug($"加载插件 {type.FullName}~");

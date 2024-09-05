@@ -1,4 +1,4 @@
-namespace HeyBoxBotCs.Api.Features;
+namespace HeyBoxChatBotCs.Api.Features;
 
 public delegate void CustomEventHandler<in TEventArgs>(TEventArgs args);
 

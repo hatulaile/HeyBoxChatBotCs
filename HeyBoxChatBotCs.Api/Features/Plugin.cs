@@ -1,10 +1,10 @@
 using System.Reflection;
-using HeyBoxBotCs.Api.Enums;
-using HeyBoxBotCs.Api.Interfaces;
+using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Interfaces;
 
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
 
-namespace HeyBoxBotCs.Api.Features;
+namespace HeyBoxChatBotCs.Api.Features;
 
 public abstract class Plugin<TConfig> : IPlugin<TConfig>
     where TConfig : IConfig, new()

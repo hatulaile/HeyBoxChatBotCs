@@ -1,8 +1,6 @@
-using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace HeyBoxBotCs.Api.Features.Network;
+namespace HeyBoxChatBotCs.Api.Features.Network;
 
 public delegate void SendingNetworkRequest();
 

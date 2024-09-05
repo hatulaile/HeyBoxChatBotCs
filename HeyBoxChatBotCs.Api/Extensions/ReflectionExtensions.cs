@@ -1,8 +1,7 @@
 using System.Reflection;
-using HeyBoxBotCs.Api.Exceptions;
-using HeyBoxBotCs.Api.Features;
+using HeyBoxChatBotCs.Api.Features;
 
-namespace HeyBoxBotCs.Api.Extensions;
+namespace HeyBoxChatBotCs.Api.Extensions;
 
 public static class ReflectionExtensions
 {

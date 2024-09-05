@@ -1,7 +1,7 @@
 using System.Reflection;
-using HeyBoxBotCs.Api.Extensions;
+using HeyBoxChatBotCs.Api.Extensions;
 
-namespace HeyBoxBotCs.Api.Features;
+namespace HeyBoxChatBotCs.Api.Features;
 
 public static class Log
 {
@@ -48,7 +48,7 @@ public static class Log
     public static void Debug(object message)
     {
         Assembly callingAssembly = Assembly.GetCallingAssembly();
-        if (callingAssembly.GetName().Name == "HeyBoxChatCs.Api")
+        if (callingAssembly.GetName().Name == "HeyBoxChatBotCs.Api")
         {
             Send($"[{callingAssembly.GetName().Name}] {message}", Enums.LogLevel.Debug,
                 Enums.LogLevel.Debug.LogLevelTotalColor());
@@ -58,7 +58,7 @@ public static class Log
     public static void Debug(string message)
     {
         Assembly callingAssembly = Assembly.GetCallingAssembly();
-        if (callingAssembly.GetName().Name == "HeyBoxChatCs.Api")
+        if (callingAssembly.GetName().Name == "HeyBoxChatBotCs.Api")
         {
             Send("[" + callingAssembly.GetName().Name + "] " + message, Enums.LogLevel.Debug,
                 Enums.LogLevel.Debug.LogLevelTotalColor());

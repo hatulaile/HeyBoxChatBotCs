@@ -1,7 +1,7 @@
 using System.Text;
-using HeyBoxBotCs.Api.Interfaces;
+using HeyBoxChatBotCs.Api.Interfaces;
 
-namespace HeyBoxBotCs.Api.Features;
+namespace HeyBoxChatBotCs.Api.Features;
 
 public static class Paths
 {
