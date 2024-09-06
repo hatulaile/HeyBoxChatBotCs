@@ -6,6 +6,10 @@ public delegate void SendingNetworkRequest();
 
 public class HttpRequest
 {
+    public static JsonSerializerOptions HttpRequestJsonSerializerOptions { get; } = new()
+    {
+    };
+
     public static event SendingNetworkRequest? OnSendingNetworkRequest;
 
     public static async Task<T> Get<T>(Uri uri, IReadOnlyDictionary<string, IEnumerable<string>>? headers = null)
@@ -64,7 +68,8 @@ public class HttpRequest
 
         OnSendingNetworkRequest?.Invoke();
         StringContent stringContent =
-            new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, contentType);
+            new StringContent(JsonSerializer.Serialize(body, HttpRequestJsonSerializerOptions),
+                System.Text.Encoding.UTF8, contentType);
         return await httpClient.PostAsync(uri, stringContent);
     }
 }

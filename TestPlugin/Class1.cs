@@ -9,7 +9,7 @@ public class Config : IConfig
     public bool IsDebug { get; set; }
 }
 
-public class TestPlugin : HeyBoxChatBotCs.Api.Features.Plugin<Config>
+public class TestPlugin : Plugin<Config>
 {
     public override string? Author => "hatu";
     public override string Name => "testPlugin";

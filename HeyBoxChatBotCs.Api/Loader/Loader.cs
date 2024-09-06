@@ -87,13 +87,13 @@ public class Loader
                     continue;
                 }
 
-                if (!IsDerivedFromPlugin(type))
+                if (!Misc.IsDerivedFromClass(type, typeof(Plugin<>), true))
                 {
                     Log.Debug($"\"{type.FullName}\"不是不是一个插件,跳过!");
                     continue;
                 }
 
-                Log.Debug($"加载插件 {type.FullName}~");
+                Log.Debug($"加载插件 {type.FullName}");
 
                 IPlugin<IConfig>? plugin = null;
                 ConstructorInfo? constructor = type.GetConstructor(Type.EmptyTypes);
@@ -209,21 +209,5 @@ public class Loader
                 Log.DebugEnabled.Add(plugin.Assembly);
             }
         }
-    }
-
-    private static bool IsDerivedFromPlugin(Type? type)
-    {
-        while (type is not null)
-        {
-            type = type.BaseType;
-
-            if (type is not { IsGenericType: true }) continue;
-            Type genericTypeDef = type.GetGenericTypeDefinition();
-
-            if (genericTypeDef == typeof(Plugin<>))
-                return true;
-        }
-
-        return false;
     }
 }

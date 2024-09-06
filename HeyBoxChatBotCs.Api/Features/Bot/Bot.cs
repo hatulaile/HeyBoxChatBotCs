@@ -1,3 +1,4 @@
+using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Enums;
 using HeyBoxChatBotCs.Api.Features.Network;
 
@@ -51,6 +52,12 @@ public class Bot
         BotWebSocket.Start();
         new Loader.Loader().Run();
         IsRunning = true;
+        Log.Info("控制台命令已启用,可以输入!");
+        new Thread(ConsoleCommandProcessor.Run)
+        {
+            IsBackground = true,
+            Name = "Console ReadLine Thread"
+        }.Start();
         while (!MainThreadCts.IsCancellationRequested)
         {
             Thread.Sleep(1000);
@@ -64,6 +71,7 @@ public class Bot
             Log.Warn("你都没开始如何结束此Bot!");
         }
 
+        IsRunning = false;
         BotWebSocket?.Dispose();
         MainThreadCts.Cancel();
         MainThreadCts.Dispose();

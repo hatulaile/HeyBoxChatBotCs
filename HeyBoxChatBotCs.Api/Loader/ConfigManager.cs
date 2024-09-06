@@ -55,7 +55,7 @@ public static class ConfigManager
                 try
                 {
                     pluginConfig.Add(JsonSerializer.Deserialize(File.ReadAllText(configPath), plugin.Config.GetType(),
-                            ConfigJsonSerializerOptions)
+                            ConfigJsonSerializerOptions)!
                         .PropertiesToDictionary());
                 }
                 catch (Exception e)

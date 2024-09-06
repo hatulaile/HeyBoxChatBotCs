@@ -1,5 +1,8 @@
 using System.Reflection;
+using HeyBoxChatBotCs.Api.Commands.CommandSystem;
+using HeyBoxChatBotCs.Api.Commands.Interfaces;
 using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Exceptions;
 using HeyBoxChatBotCs.Api.Interfaces;
 
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
@@ -27,6 +30,13 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
 
     public TConfig Config { get; }
 
+    public Dictionary<Type, Dictionary<Type, ICommand>> Commands { get; } = new()
+    {
+        [typeof(ConsoleCommandHandler)] =
+        {
+        }
+    };
+
     public virtual void OnEnabled()
     {
         AssemblyInformationalVersionAttribute? attribute =
@@ -39,17 +49,95 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
         Log.Info($"{Name} 正在禁用!");
 
     public virtual void OnReloaded()
-        =>
-            Log.Info($"{Name} 正在重启!");
+        => Log.Info($"{Name} 正在重启!");
 
 
-    //todo 命令部分未完成
     public virtual void OnRegisteringCommands()
     {
+        try
+        {
+            foreach (Type type in Assembly.GetTypes())
+            {
+                if (type.GetInterface("ICommand") == typeof(ICommand) &&
+                    type.IsDefined(typeof(CommandHandlerAttribute), true))
+                {
+                    foreach (CustomAttributeData data in type.GetCustomAttributesData()
+                                 .Where(data => data.AttributeType == typeof(CommandHandlerAttribute)))
+                    {
+                        Type? key = (Type?)data.ConstructorArguments.ElementAt(0).Value;
+                        if (key is not null &&
+                            Commands.TryGetValue(key, out Dictionary<Type, ICommand>? dictionary))
+                        {
+                            if (!dictionary.TryGetValue(type, out ICommand? command))
+                            {
+                                command = (ICommand)Activator.CreateInstance(type)!;
+                            }
+
+                            try
+                            {
+                                if (key == typeof(ConsoleCommandHandler))
+                                {
+                                    ConsoleCommandProcessor.ConsoleCommandHandler.RegisterCommand(command);
+                                }
+                            }
+                            catch (CommandRegisteredException registeredException)
+                            {
+                                Log.Error(registeredException);
+                                Log.Error($"注册命令时 {command.Command} 已注册,不知道为什么重复注册了!");
+                            }
+                            catch (ArgumentException argumentException)
+                            {
+                                Log.Error(argumentException);
+                                Log.Error("注册命令遇到参数异常!");
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Error(exception);
+                                Log.Error("注册命令遇到未知异常!");
+                            }
+
+                            Commands[key][type] = command;
+                        }
+                        else
+                        {
+                            Log.Warn($"发现未注册处理事件 {key?.Name ?? "NULL"},可能是未注册或者未实现!");
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception);
+            Log.Error("注册命令遇到错误!");
+        }
     }
 
     public virtual void OnUnregisteringCommands()
     {
+        foreach (KeyValuePair<Type, Dictionary<Type, ICommand>> key in Commands)
+        {
+            foreach (KeyValuePair<Type, ICommand> value in key.Value)
+            {
+                try
+                {
+                    if (value.Key == typeof(ConsoleCommandHandler))
+                    {
+                        ConsoleCommandProcessor.ConsoleCommandHandler.UnRegisterCommand(value.Value);
+                    }
+                }
+                catch (CommandUnregisteredException commandUnregisteredException)
+                {
+                    Log.Error(commandUnregisteredException);
+                    Log.Error("取消注册命令时发生错误,命令还未注册!");
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception);
+                    Log.Error("取消注册命令遇到未知错误!");
+                }
+            }
+        }
     }
 
     public int CompareTo(IPlugin<IConfig>? other) => -Priority.CompareTo(other?.Priority);

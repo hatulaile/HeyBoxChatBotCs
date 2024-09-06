@@ -13,8 +13,24 @@ public interface IPlugin<out TConfig> : IComparable<IPlugin<IConfig>>
     Version? Version { get; }
     TConfig Config { get; }
     void OnEnabled();
+
+    /// <summary>
+    /// 未实现
+    /// </summary>
     void OnDisabled();
+
+    /// <summary>
+    /// 未实现
+    /// </summary>
     void OnReloaded();
+
+    /// <summary>
+    /// 未实现
+    /// </summary>
     void OnRegisteringCommands();
+
+    /// <summary>
+    /// 未实现
+    /// </summary>
     void OnUnregisteringCommands();
 }
