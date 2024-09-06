@@ -24,6 +24,8 @@ public class BotWebSocket : IDisposable
         Bot = bot;
     }
 
+    public bool IsRunning { get; private set; }
+
     private Bot.Bot Bot { get; }
 
 
@@ -41,6 +43,8 @@ public class BotWebSocket : IDisposable
 
         try
         {
+            IsRunning = true;
+
             WebSocketCts = new CancellationTokenSource();
 
             WebSocket = new ClientWebSocket();
@@ -108,12 +112,18 @@ public class BotWebSocket : IDisposable
                         break;
                     }
                 }
+
                 Log.Debug("接收到信息:");
                 Log.Debug(sb.ToString());
                 sb.Clear();
             }
             catch (ObjectDisposedException objectDisposedException)
             {
+                if (!IsRunning)
+                {
+                    break;
+                }
+
                 if (!cts.IsCancellationRequested)
                 {
                     Log.Debug("主动退出Websocket链接");
@@ -127,6 +137,11 @@ public class BotWebSocket : IDisposable
             }
             catch (Exception exception)
             {
+                if (!IsRunning)
+                {
+                    break;
+                }
+
                 Log.Error(exception);
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
                 Dispose();
@@ -160,6 +175,11 @@ public class BotWebSocket : IDisposable
             }
             else
             {
+                if (!IsRunning)
+                {
+                    break;
+                }
+
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
                 cts.Cancel();
                 Start();
@@ -171,6 +191,7 @@ public class BotWebSocket : IDisposable
 
     public void Dispose()
     {
+        IsRunning = false;
         WebSocketCts?.Cancel();
         WebSocket?.Dispose();
         WebSocketCts?.Dispose();

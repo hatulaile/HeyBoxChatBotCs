@@ -22,14 +22,19 @@ public static class Misc
 
     public static bool IsDerivedFromClass(Type? source, Type? target, bool isDefinition = false)
     {
-        if (source is null && target is not null || source is not null && target is null)
+        if (source is null && target is null)
+        {
+            return true;
+        }
+
+        if (source is null || target is null)
         {
             return false;
         }
 
-        if (source is null && target is null)
+        if (!target.IsGenericType)
         {
-            return true;
+            isDefinition = false;
         }
 
         while (source is not null)
@@ -44,9 +49,9 @@ public static class Misc
             {
                 return true;
             }
-            else if (isDefinition && source.IsGenericTypeDefinition)
+            else if (isDefinition && source.IsGenericType && target.IsGenericType)
             {
-                if (target!.GetGenericTypeDefinition() == source.GetGenericTypeDefinition())
+                if (target.GetGenericTypeDefinition() == source.GetGenericTypeDefinition())
                 {
                     return true;
                 }
