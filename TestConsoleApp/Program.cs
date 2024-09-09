@@ -1,7 +1,4 @@
-﻿using HeyBoxChatBotCs.Api.Exceptions;
-using HeyBoxChatBotCs.Api.Features;
-using HeyBoxChatBotCs.Api.Features.Bot;
-using HeyBoxChatBotCs.Api.Features.Network;
+﻿using HeyBoxChatBotCs.Api.Features.Bot;
 
 namespace TestConsoleApp;
 

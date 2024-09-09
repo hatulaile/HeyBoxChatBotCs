@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Commands.Interfaces;
-using HeyBoxChatBotCs.Api;
 
 namespace HeyBoxChatBotCs.Api.Commands.ConsoleCommands;
 

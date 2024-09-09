@@ -1,7 +1,4 @@
-﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
-using HeyBoxChatBotCs.Api.Features;
-
-namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
+﻿namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
 public static class UserCommandProcessor
 {
