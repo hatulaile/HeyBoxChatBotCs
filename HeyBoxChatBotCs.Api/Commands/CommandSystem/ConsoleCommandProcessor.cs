@@ -3,13 +3,11 @@ using HeyBoxChatBotCs.Api.Features;
 
 namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
-public delegate void ConsoleInput(string input);
-
 public static class ConsoleCommandProcessor
 {
     public static readonly ConsoleCommandHandler ConsoleCommandHandler = ConsoleCommandHandler.Create();
 
-    public static event ConsoleInput ConsoleInput = ProcessorInput;
+    public static event ReceiveMessage ConsoleInput = ProcessorInput;
 
     private static CancellationTokenSource? ConsoleReadCts { get; set; }
 
@@ -26,7 +24,7 @@ public static class ConsoleCommandProcessor
         }
 
         var args = new ArraySegment<string>(strings, 1, strings.Length - 1);
-        Log.Debug($"参数数组为:{string.Join(',', args)}");
+        Log.Debug(Misc.IsArrayNullOrEmpty(args) ? "用户无输入参数" : $"参数数组为:{string.Join(',', args)}");
         if (command!.Execute(args, null, out string response))
         {
             Log.Info(string.IsNullOrWhiteSpace(response) ? "执行完毕!" : response);

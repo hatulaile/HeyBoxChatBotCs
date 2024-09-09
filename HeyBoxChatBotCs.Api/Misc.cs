@@ -8,7 +8,7 @@ public static class Misc
         return $"{nowTime:G} UTF{nowTime:zz}";
     }
 
-    public static bool IsArrayNullOrEmpty<T>(T[]? array) => array is null || array.Length == 0;
+    public static bool IsArrayNullOrEmpty<T>(IList<T> array) => array is null || array.Count == 0;
 
     public static bool IsDerivedFromClass<TType>(object source)
     {
@@ -49,7 +49,7 @@ public static class Misc
             {
                 return true;
             }
-            else if (isDefinition && source.IsGenericType && target.IsGenericType)
+            else if (isDefinition && source.IsGenericType)
             {
                 if (target.GetGenericTypeDefinition() == source.GetGenericTypeDefinition())
                 {
@@ -59,5 +59,15 @@ public static class Misc
         }
 
         return false;
+    }
+
+    public static void Exit(int code = 0)
+    {
+#if DEBUG
+#else
+        Log.Warn("程序即将结束,按任意键退出!");
+        Console.ReadLine();
+#endif
+        Environment.Exit(code);
     }
 }

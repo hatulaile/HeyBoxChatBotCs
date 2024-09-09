@@ -28,10 +28,19 @@ public static class BotHttpUri
 
 public class Bot
 {
+    public static Bot? Instance { get; private set; }
+
     public Bot(string id, string token)
     {
+        if (Instance is not null)
+        {
+            //todo 异常待制作
+            throw new Exception("实例已存在,请不要重复新建机器人,如果要多机器人请新开一个应用!");
+        }
+
         Id = id;
         Token = token;
+        Instance = this;
     }
 
     public string Id { get; private set; }

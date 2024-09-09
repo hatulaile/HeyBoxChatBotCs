@@ -53,7 +53,7 @@ public class BotWebSocket : IDisposable
 
             WebSocket.ConnectAsync(new Uri(WebsocketUri, QUERY), default).Wait();
 
-            new Thread(ReceiveMessage)
+            new Thread(ReceiveServerMessage)
             {
                 IsBackground = true,
                 Name = "Websocket Receive Message"
@@ -71,7 +71,7 @@ public class BotWebSocket : IDisposable
             if (retryCount == MAX_RETRY_COUNT)
             {
                 Log.Error("由于失败过多次,关闭 BOT !");
-                Environment.Exit(20000);
+                Misc.Exit(20000);
             }
 
             Dispose();
@@ -81,13 +81,16 @@ public class BotWebSocket : IDisposable
         }
     }
 
-    protected void ReceiveMessage(object? ctsObject)
+
+    public static event ReceiveMessage? ReceiveMessage;
+
+    protected void ReceiveServerMessage(object? ctsObject)
     {
         if (ctsObject is not CancellationTokenSource cts)
         {
             Log.Error("ReceiveMessage方法传值错误,程序中断!!!!");
             //todo 退出值带重设
-            Environment.Exit(25000);
+            Misc.Exit(25000);
             return;
         }
 
@@ -105,7 +108,7 @@ public class BotWebSocket : IDisposable
             {
                 while (true)
                 {
-                    var ret = WebSocket.ReceiveAsync(buffer, default).Result;
+                    var ret = WebSocket.ReceiveAsync(buffer, WebSocketCts?.Token ?? default).Result;
                     sb.Append(Encoding.UTF8.GetString(buffer, 0, ret.Count));
                     if (ret.EndOfMessage)
                     {
@@ -113,8 +116,18 @@ public class BotWebSocket : IDisposable
                     }
                 }
 
-                Log.Debug("接收到信息:");
-                Log.Debug(sb.ToString());
+                if (sb.ToString() is "PONG")
+                {
+                    Log.Debug("已接受到服务器心跳返回信息!");
+                }
+                else
+                {
+                    ReceiveMessage?.Invoke(sb.ToString());
+                    File.WriteAllText(@"D:/Test.json",sb.ToString());
+                    Log.Debug(sb.ToString());
+                    Log.Debug("已接受到服务器发送信息!");
+                }
+
                 sb.Clear();
             }
             catch (ObjectDisposedException objectDisposedException)
@@ -156,9 +169,11 @@ public class BotWebSocket : IDisposable
         {
             Log.Error("Ack方法传值错误,程序中断!!!!");
             //todo 退出值带重设
-            Environment.Exit(25000);
+            Misc.Exit(25000);
             return;
         }
+
+        Thread.Sleep(ACK_SLEEP_TIME);
 
         while (true)
         {
@@ -175,7 +190,7 @@ public class BotWebSocket : IDisposable
             }
             else
             {
-                if (!IsRunning)
+                if (!IsRunning || cts.IsCancellationRequested)
                 {
                     break;
                 }

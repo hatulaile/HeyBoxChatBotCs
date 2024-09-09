@@ -58,50 +58,48 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
         {
             foreach (Type type in Assembly.GetTypes())
             {
-                if (type.GetInterface("ICommand") == typeof(ICommand) &&
-                    type.IsDefined(typeof(CommandHandlerAttribute), true))
+                if (type.GetInterface("ICommand") != typeof(ICommand) ||
+                    !type.IsDefined(typeof(CommandHandlerAttribute), true)) continue;
+                foreach (CustomAttributeData data in type.GetCustomAttributesData()
+                             .Where(data => data.AttributeType == typeof(CommandHandlerAttribute)))
                 {
-                    foreach (CustomAttributeData data in type.GetCustomAttributesData()
-                                 .Where(data => data.AttributeType == typeof(CommandHandlerAttribute)))
+                    Type? key = (Type?)data.ConstructorArguments.ElementAt(0).Value;
+                    if (key is not null &&
+                        Commands.TryGetValue(key, out Dictionary<Type, ICommand>? dictionary))
                     {
-                        Type? key = (Type?)data.ConstructorArguments.ElementAt(0).Value;
-                        if (key is not null &&
-                            Commands.TryGetValue(key, out Dictionary<Type, ICommand>? dictionary))
+                        if (!dictionary.TryGetValue(type, out ICommand? command))
                         {
-                            if (!dictionary.TryGetValue(type, out ICommand? command))
-                            {
-                                command = (ICommand)Activator.CreateInstance(type)!;
-                            }
-
-                            try
-                            {
-                                if (key == typeof(ConsoleCommandHandler))
-                                {
-                                    ConsoleCommandProcessor.ConsoleCommandHandler.RegisterCommand(command);
-                                }
-                            }
-                            catch (CommandRegisteredException registeredException)
-                            {
-                                Log.Error(registeredException);
-                                Log.Error($"注册命令时 {command.Command} 已注册,不知道为什么重复注册了!");
-                            }
-                            catch (ArgumentException argumentException)
-                            {
-                                Log.Error(argumentException);
-                                Log.Error("注册命令遇到参数异常!");
-                            }
-                            catch (Exception exception)
-                            {
-                                Log.Error(exception);
-                                Log.Error("注册命令遇到未知异常!");
-                            }
-
-                            Commands[key][type] = command;
+                            command = (ICommand)Activator.CreateInstance(type)!;
                         }
-                        else
+
+                        try
                         {
-                            Log.Warn($"发现未注册处理事件 {key?.Name ?? "NULL"},可能是未注册或者未实现!");
+                            if (key == typeof(ConsoleCommandHandler))
+                            {
+                                ConsoleCommandProcessor.ConsoleCommandHandler.RegisterCommand(command);
+                            }
                         }
+                        catch (CommandRegisteredException registeredException)
+                        {
+                            Log.Error(registeredException);
+                            Log.Error($"注册命令时 {command.Command} 已注册,不知道为什么重复注册了!");
+                        }
+                        catch (ArgumentException argumentException)
+                        {
+                            Log.Error(argumentException);
+                            Log.Error("注册命令遇到参数异常!");
+                        }
+                        catch (Exception exception)
+                        {
+                            Log.Error(exception);
+                            Log.Error("注册命令遇到未知异常!");
+                        }
+
+                        Commands[key][type] = command;
+                    }
+                    else
+                    {
+                        Log.Warn($"发现未注册处理事件 {key?.Name ?? "NULL"},可能是未注册或者未实现!");
                     }
                 }
             }
@@ -115,27 +113,24 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
 
     public virtual void OnUnregisteringCommands()
     {
-        foreach (KeyValuePair<Type, Dictionary<Type, ICommand>> key in Commands)
+        foreach (KeyValuePair<Type, ICommand> value in Commands.SelectMany(key => key.Value))
         {
-            foreach (KeyValuePair<Type, ICommand> value in key.Value)
+            try
             {
-                try
+                if (value.Key == typeof(ConsoleCommandHandler))
                 {
-                    if (value.Key == typeof(ConsoleCommandHandler))
-                    {
-                        ConsoleCommandProcessor.ConsoleCommandHandler.UnRegisterCommand(value.Value);
-                    }
+                    ConsoleCommandProcessor.ConsoleCommandHandler.UnRegisterCommand(value.Value);
                 }
-                catch (CommandUnregisteredException commandUnregisteredException)
-                {
-                    Log.Error(commandUnregisteredException);
-                    Log.Error("取消注册命令时发生错误,命令还未注册!");
-                }
-                catch (Exception exception)
-                {
-                    Log.Error(exception);
-                    Log.Error("取消注册命令遇到未知错误!");
-                }
+            }
+            catch (CommandUnregisteredException commandUnregisteredException)
+            {
+                Log.Error(commandUnregisteredException);
+                Log.Error("取消注册命令时发生错误,命令还未注册!");
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception);
+                Log.Error("取消注册命令遇到未知错误!");
             }
         }
     }

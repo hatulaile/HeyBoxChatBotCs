@@ -14,5 +14,6 @@ public class ConsoleCommandHandler : CommandHandler
     protected override void LoadOriginalCommand()
     {
         RegisterCommand(new ConsoleHelpCommand());
+        RegisterCommand(new StopServerCommand());
     }
 }
