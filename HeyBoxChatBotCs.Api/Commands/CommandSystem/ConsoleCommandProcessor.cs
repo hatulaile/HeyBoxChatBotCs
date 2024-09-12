@@ -1,4 +1,5 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
+using HeyBoxChatBotCs.Api.Enums;
 using HeyBoxChatBotCs.Api.Features;
 
 namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
@@ -14,18 +15,29 @@ public static class ConsoleCommandProcessor
 
     private static void ProcessorInput(string input)
     {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return;
+        }
+
         input = input.TrimStart('/', ' ', '\\', '.');
         Log.Debug($"用户输入简化为: {input}");
-        var strings = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        if (!ConsoleCommandHandler.TryGetCommand(strings[0], out ICommand? command))
+        var inputs = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (!ConsoleCommandHandler.TryGetCommand(inputs[0], out ICommandBase? command))
         {
             Log.Warn("未找到输入的命令,可以使用 help 查看所有命令!");
             return;
         }
 
-        var args = new ArraySegment<string>(strings, 1, strings.Length - 1);
+        if (command is not IConsoleCommand consoleCommand)
+        {
+            Log.Error($"错误的传入了命令,应为{nameof(IConsoleCommand)}!");
+            return;
+        }
+
+        ArraySegment<string> args = new ArraySegment<string>(inputs, 1, inputs.Length - 1);
         Log.Debug(Misc.IsArrayNullOrEmpty(args) ? "用户无输入参数" : $"参数数组为:{string.Join(',', args)}");
-        if (command!.Execute(args, null, out string response))
+        if (consoleCommand.Execute(args, null, out string response))
         {
             Log.Info(string.IsNullOrWhiteSpace(response) ? "执行完毕!" : response);
         }

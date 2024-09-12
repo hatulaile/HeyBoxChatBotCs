@@ -48,9 +48,11 @@ public class Bot
 
     private BotWebSocket? BotWebSocket { get; set; }
 
-    private CancellationTokenSource MainThreadCts { get; } = new();
-
     public bool IsRunning { get; private set; }
+
+    public static event EventHandler? BotStart;
+
+    public static event EventHandler? BotClose;
 
     /// <summary>
     /// 开启Bot 此方法会阻塞程序!
@@ -61,13 +63,14 @@ public class Bot
         BotWebSocket.Start();
         new Loader.Loader().Run();
         IsRunning = true;
+        BotStart?.Invoke(this);
         Log.Info("控制台命令已启用,可以输入!");
         new Thread(ConsoleCommandProcessor.Run)
         {
             IsBackground = true,
             Name = "Console ReadLine Thread"
         }.Start();
-        while (!MainThreadCts.IsCancellationRequested)
+        while (true)
         {
             Thread.Sleep(1000);
         }
@@ -77,13 +80,14 @@ public class Bot
     {
         if (!IsRunning || BotWebSocket is null)
         {
-            Log.Warn("你都没开始如何结束此Bot!");
+            Log.Warn("你还未启用Bot,无法关闭!");
         }
 
+        BotClose?.Invoke(this);
         IsRunning = false;
         BotWebSocket?.Dispose();
-        MainThreadCts.Cancel();
-        MainThreadCts.Dispose();
+        Log.Info("已关闭Bot,正在退出程序!");
+        Misc.Exit(0);
     }
 
     //todo 未完成!!!!!!!

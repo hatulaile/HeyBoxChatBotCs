@@ -1,10 +1,11 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
+using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Features;
 using HeyBoxChatBotCs.Api.Features.Bot;
-using static System.Int32;
 
 namespace HeyBoxChatBotCs.Api.Commands.ConsoleCommands;
 
-public class StopServerCommand : ICommand
+public class StopServerCommand : IConsoleCommand
 {
     public string Command { get; } = "stop";
     public string[]? Aliases { get; } = [];
@@ -12,19 +13,30 @@ public class StopServerCommand : ICommand
 
     public bool Execute(ArraySegment<string> args, ICommandSender? sender, out string response)
     {
-        Bot.Instance?.Close();
         int code = 0;
-        if (args.Count != 0)
+#if DEBUG
+        if (args.Count != 0 && int.TryParse(args.ElementAt(0), out code))
         {
-            if (!TryParse(args.ElementAt(0), out code))
-            {
-                code = 0;
-            }
         }
 
         Misc.Exit(code);
-        //下面不会执行
         response = string.Empty;
+        return true;
+#endif
+        if (Bot.Instance is null)
+        {
+            Log.Error("停止Bot时发现Bot竟然未开启!");
+            if (args.Count != 0 && int.TryParse(args.ElementAt(0), out code))
+            {
+            }
+
+            Misc.Exit(code);
+            response = string.Empty;
+            return true;
+        }
+
+        Bot.Instance.Close();
+        response = "正在停止程序运行!";
         return true;
     }
 }

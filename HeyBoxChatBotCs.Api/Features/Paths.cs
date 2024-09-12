@@ -32,7 +32,9 @@ public static class Paths
     public static string GetPluginConfigPath<TConfig>(IPlugin<TConfig> plugin)
         where TConfig : IConfig
     {
-        return Path.Combine(ConfigPath, ClearInvalidChars(plugin.Name) + ".json");
+        var path = Path.Combine(ConfigPath, ClearInvalidChars(Bot.Bot.Instance?.Id ?? "Default"));
+        IfNotExistsBeCreate(path);
+        return Path.Combine(path, ClearInvalidChars(plugin.Name) + ".json");
     }
 
     public static string ClearInvalidChars(string fileName, char newChar = '_')

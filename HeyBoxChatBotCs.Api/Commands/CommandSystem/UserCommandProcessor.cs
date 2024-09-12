@@ -9,7 +9,7 @@ public static class UserCommandProcessor
         // // input = input.TrimStart('/', ' ', '\\', '.');
         // // Log.Debug($"用户输入简化为: {input}");
         // // var strings = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        // if (!UserCommandHandler.TryGetCommand(strings[0], out ICommand? command))
+        // if (!UserCommandHandler.TryGetCommand(strings[0], out ICommandBase? commandBase))
         // {
         //     return;
         // }

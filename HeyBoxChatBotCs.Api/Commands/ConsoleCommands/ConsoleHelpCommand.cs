@@ -1,10 +1,11 @@
 ﻿using System.Text;
 using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Commands.Interfaces;
+using HeyBoxChatBotCs.Api.Enums;
 
 namespace HeyBoxChatBotCs.Api.Commands.ConsoleCommands;
 
-public class ConsoleHelpCommand : ICommand
+public class ConsoleHelpCommand : IConsoleCommand
 {
     public string Command { get; } = "help";
     public string[]? Aliases { get; } = [];
@@ -14,7 +15,7 @@ public class ConsoleHelpCommand : ICommand
     {
         StringBuilder sb = new StringBuilder("以下为全控制台命令:\n");
         int count = 0;
-        foreach (ICommand command in
+        foreach (ICommandBase command in
                  ConsoleCommandProcessor.ConsoleCommandHandler.AllCommand)
         {
             sb.AppendLine(

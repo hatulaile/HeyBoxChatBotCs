@@ -18,7 +18,7 @@ public class CommandException : Exception
         Command = command;
     }
 
-    public CommandException(ICommand? command, string? message = null) : this(message, command?.GetType().Name)
+    public CommandException(ICommandBase? command, string? message = null) : this(message, command?.GetType().Name)
     {
     }
 

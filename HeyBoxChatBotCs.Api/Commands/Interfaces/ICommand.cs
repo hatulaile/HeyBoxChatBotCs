@@ -1,10 +1,6 @@
 ﻿namespace HeyBoxChatBotCs.Api.Commands.Interfaces;
 
-public interface ICommand
+public interface ICommand<in TArgs> : ICommandBase
 {
-    public string Command { get; }
-    public string[]? Aliases { get; }
-    public string Description { get; }
-
-    public bool Execute(ArraySegment<string> args, ICommandSender? sender, out string response);
+    public bool Execute(TArgs args, ICommandSender? sender, out string response);
 }

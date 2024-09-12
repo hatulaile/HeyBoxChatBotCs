@@ -5,12 +5,12 @@ namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
 public abstract class CommandHandler
 {
-    protected readonly Dictionary<string, ICommand> Commands = new(StringComparer.OrdinalIgnoreCase);
+    protected readonly Dictionary<string, ICommandBase> Commands = new(StringComparer.OrdinalIgnoreCase);
     protected readonly Dictionary<string, string> CommandAliases = new(StringComparer.OrdinalIgnoreCase);
 
-    public virtual IEnumerable<ICommand> AllCommand => Commands.Values;
+    public virtual IEnumerable<ICommandBase> AllCommand => Commands.Values;
 
-    public virtual bool TryGetCommand(string query, out ICommand? command)
+    public virtual bool TryGetCommand(string query, out ICommandBase? command)
     {
         if (CommandAliases.TryGetValue(query, out string? str))
         {
@@ -20,33 +20,32 @@ public abstract class CommandHandler
         return Commands.TryGetValue(query, out command);
     }
 
-    public virtual void RegisterCommand(ICommand command)
+    public virtual void RegisterCommand(ICommandBase commandBase)
     {
-        if (string.IsNullOrWhiteSpace(command.Command))
-            throw new ArgumentException("此命令为空:" + command.GetType().Name);
-        if (Commands.ContainsKey(command.Command))
+        if (string.IsNullOrWhiteSpace(commandBase.Command))
+            throw new ArgumentException("此命令为空:" + commandBase.GetType().Name);
+        if (!Commands.TryAdd(commandBase.Command, commandBase))
         {
             throw new CommandRegisteredException();
         }
 
-        Commands.Add(command.Command, command);
-        if (command.Aliases is null)
+        if (commandBase.Aliases is null)
             return;
-        foreach (string alias in command.Aliases)
+        foreach (string alias in commandBase.Aliases)
         {
             if (!string.IsNullOrWhiteSpace(alias))
-                CommandAliases.Add(alias, command.Command);
+                CommandAliases.Add(alias, commandBase.Command);
         }
     }
 
-    public virtual void UnRegisterCommand(ICommand command)
+    public virtual void UnRegisterCommand(ICommandBase commandBase)
     {
-        if (!AllCommand.Contains(command))
+        if (!AllCommand.Contains(commandBase))
         {
-            throw new CommandUnregisteredException(command);
+            throw new CommandUnregisteredException(commandBase);
         }
 
-        UnRegisterCommand(command.Command);
+        UnRegisterCommand(commandBase.Command);
     }
 
     public virtual void UnRegisterCommand(string query)
@@ -56,7 +55,7 @@ public abstract class CommandHandler
             query = str;
         }
 
-        if (!Commands.TryGetValue(query, out ICommand? command))
+        if (!Commands.TryGetValue(query, out ICommandBase? command))
         {
             throw new CommandUnregisteredException(command: query);
         }
@@ -73,7 +72,7 @@ public abstract class CommandHandler
         }
     }
 
-    public virtual void ClearCommadn()
+    public virtual void ClearCommand()
     {
         Commands.Clear();
         CommandAliases.Clear();

@@ -1,3 +1,5 @@
+using HeyBoxChatBotCs.Api.Features;
+
 namespace HeyBoxChatBotCs.Api;
 
 public static class Misc
@@ -8,7 +10,7 @@ public static class Misc
         return $"{nowTime:G} UTF{nowTime:zz}";
     }
 
-    public static bool IsArrayNullOrEmpty<T>(IList<T> array) => array is null || array.Count == 0;
+    public static bool IsArrayNullOrEmpty<T>(IList<T>? array) => array is null || array.Count == 0;
 
     public static bool IsDerivedFromClass<TType>(object source)
     {
@@ -63,6 +65,7 @@ public static class Misc
 
     public static void Exit(int code = 0)
     {
+        Log.Info($"退出代码:{code}");
 #if DEBUG
 #else
         Log.Warn("程序即将结束,按任意键退出!");

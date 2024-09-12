@@ -13,7 +13,7 @@ public class BotWebSocket : IDisposable
 
     private const int MAX_BUFFER_SIZE = 1024 * 1024;
 
-    private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=999.0.0";
+    private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=1.27.2";
     //"client_type=heybox_chat&x_client_type=web&os_type=web&" +
     // "x_os_type=bot&x_app=heybox_chat&chat_os_type=bot&chat_version=999.0.0";
 
@@ -123,7 +123,7 @@ public class BotWebSocket : IDisposable
                 else
                 {
                     ReceiveMessage?.Invoke(sb.ToString());
-                    File.WriteAllText(@"D:/Test.json",sb.ToString());
+                    File.WriteAllText(@"D:/Test.json", sb.ToString());
                     Log.Debug(sb.ToString());
                     Log.Debug("已接受到服务器发送信息!");
                 }

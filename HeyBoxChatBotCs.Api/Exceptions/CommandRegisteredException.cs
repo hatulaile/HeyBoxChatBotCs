@@ -4,8 +4,8 @@ namespace HeyBoxChatBotCs.Api.Exceptions;
 
 public class CommandRegisteredException : CommandException
 {
-    public CommandRegisteredException(ICommand command, string message = "命令已注册") : this(message,
-        command.GetType().Name)
+    public CommandRegisteredException(ICommandBase commandBase, string message = "命令已注册") : this(message,
+        commandBase.GetType().Name)
     {
     }
 

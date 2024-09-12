@@ -30,7 +30,7 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
 
     public TConfig Config { get; }
 
-    public Dictionary<Type, Dictionary<Type, ICommand>> Commands { get; } = new()
+    public Dictionary<Type, Dictionary<Type, ICommandBase>> Commands { get; } = new()
     {
         [typeof(ConsoleCommandHandler)] =
         {
@@ -58,18 +58,18 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
         {
             foreach (Type type in Assembly.GetTypes())
             {
-                if (type.GetInterface("ICommand") != typeof(ICommand) ||
+                if (type.GetInterface("ICommandBase") != typeof(ICommandBase) ||
                     !type.IsDefined(typeof(CommandHandlerAttribute), true)) continue;
                 foreach (CustomAttributeData data in type.GetCustomAttributesData()
                              .Where(data => data.AttributeType == typeof(CommandHandlerAttribute)))
                 {
                     Type? key = (Type?)data.ConstructorArguments.ElementAt(0).Value;
                     if (key is not null &&
-                        Commands.TryGetValue(key, out Dictionary<Type, ICommand>? dictionary))
+                        Commands.TryGetValue(key, out Dictionary<Type, ICommandBase>? dictionary))
                     {
-                        if (!dictionary.TryGetValue(type, out ICommand? command))
+                        if (!dictionary.TryGetValue(type, out ICommandBase? command))
                         {
-                            command = (ICommand)Activator.CreateInstance(type)!;
+                            command = (ICommandBase)Activator.CreateInstance(type)!;
                         }
 
                         try
@@ -113,7 +113,7 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
 
     public virtual void OnUnregisteringCommands()
     {
-        foreach (KeyValuePair<Type, ICommand> value in Commands.SelectMany(key => key.Value))
+        foreach (KeyValuePair<Type, ICommandBase> value in Commands.SelectMany(key => key.Value))
         {
             try
             {

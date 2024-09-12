@@ -45,7 +45,7 @@ public class Loader
         return null;
     }
 
-    private static void LoadPlugins()
+    public static void LoadPlugins()
     {
         Log.Info("开始加载插件~");
         foreach (string filePath in Directory.GetFiles(Paths.PluginPath, "*.dll"))
@@ -75,7 +75,7 @@ public class Loader
         Log.Info("插件加载完毕~");
     }
 
-    private static IPlugin<IConfig>? CreatePlugin(Assembly assembly)
+    public static IPlugin<IConfig>? CreatePlugin(Assembly assembly)
     {
         try
         {
@@ -147,7 +147,7 @@ public class Loader
     }
 
 
-    private static void LoadDependencies()
+    public static void LoadDependencies()
     {
         try
         {
@@ -174,7 +174,46 @@ public class Loader
     }
 
 
-    private static void EnablePlugins()
+    public static void DisablePlugins()
+    {
+        foreach (IPlugin<IConfig> plugin in Plugins)
+        {
+            try
+            {
+                plugin.OnDisabled();
+                plugin.Config.IsEnabled = false;
+                plugin.OnUnregisteringCommands();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("禁用插件时遇到错误:" + ex);
+            }
+        }
+    }
+
+    public static void ReloadPlugins()
+    {
+        foreach (IPlugin<IConfig> plugin in Plugins)
+        {
+            try
+            {
+                plugin.OnReloaded();
+            }
+            catch (Exception exception)
+            {
+                Log.Error("重启插件遇到错误:" + exception);
+            }
+        }
+
+        DisablePlugins();
+        Plugins.Clear();
+        Locations.Clear();
+        LoadPlugins();
+        ConfigManager.Reload();
+        EnablePlugins();
+    }
+
+    public static void EnablePlugins()
     {
         List<IPlugin<IConfig>> toLoad = Plugins.ToList();
         foreach (IPlugin<IConfig> plugin in toLoad.Where(p => p.Name.StartsWith("HeyBoxBotCs") && p.Config.IsEnabled)
