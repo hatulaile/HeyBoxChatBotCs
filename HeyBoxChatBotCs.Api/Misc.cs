@@ -68,7 +68,7 @@ public static class Misc
         Log.Info($"退出代码:{code}");
 #if DEBUG
 #else
-        Log.Warn("程序即将结束,按任意键退出!");
+        Log.Warn("使用回车键退出......");
         Console.ReadLine();
 #endif
         Environment.Exit(code);

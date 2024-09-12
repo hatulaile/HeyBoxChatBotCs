@@ -1,4 +1,5 @@
 using System.Reflection;
+using HeyBoxChatBotCs.Api.Enums;
 using HeyBoxChatBotCs.Api.Features;
 using HeyBoxChatBotCs.Api.Interfaces;
 
@@ -15,6 +16,9 @@ public class Loader
 
     public Loader()
     {
+#if DEBUG
+        Log.Error("目前处于DEBUG模式,如需生产使用请使用RELEASE模式");
+#endif
         Log.Info($"正在初始化,文件夹位于:{Paths.RootPath}");
         AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
     }

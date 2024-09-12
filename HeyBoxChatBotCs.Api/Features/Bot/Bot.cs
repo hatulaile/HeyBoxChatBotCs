@@ -86,7 +86,7 @@ public class Bot
         BotClose?.Invoke(this);
         IsRunning = false;
         BotWebSocket?.Dispose();
-        Log.Info("已关闭Bot,正在退出程序!");
+        Log.Info("已关闭Bot,即将退出程序!");
         Misc.Exit(0);
     }
 

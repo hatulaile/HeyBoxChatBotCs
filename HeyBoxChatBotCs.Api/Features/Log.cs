@@ -5,9 +5,9 @@ namespace HeyBoxChatBotCs.Api.Features;
 
 public static class Log
 {
-    public static HashSet<Assembly> DebugEnabled { get; } = new HashSet<Assembly>();
+    public static HashSet<Assembly> DebugEnabled { get; } = [];
 
-    private static object _consoleLock = new();
+    private static readonly object ConsoleLock = new();
 
     public static void Info(object message)
     {
@@ -48,9 +48,17 @@ public static class Log
     public static void Debug(object message)
     {
         Assembly callingAssembly = Assembly.GetCallingAssembly();
+#if DEBUG
         if (callingAssembly.GetName().Name == "HeyBoxChatBotCs.Api")
         {
-            Send($"[{callingAssembly.GetName().Name}] {message}", Enums.LogLevel.Debug,
+            Send("[" + callingAssembly.GetName().Name + "] " + message, Enums.LogLevel.Debug,
+                Enums.LogLevel.Debug.LogLevelTotalColor());
+        }
+#endif
+
+        if (DebugEnabled.Contains(callingAssembly))
+        {
+            Send("[" + callingAssembly.GetName().Name + "] " + message, Enums.LogLevel.Debug,
                 Enums.LogLevel.Debug.LogLevelTotalColor());
         }
     }
@@ -58,7 +66,15 @@ public static class Log
     public static void Debug(string message)
     {
         Assembly callingAssembly = Assembly.GetCallingAssembly();
+#if DEBUG
         if (callingAssembly.GetName().Name == "HeyBoxChatBotCs.Api")
+        {
+            Send("[" + callingAssembly.GetName().Name + "] " + message, Enums.LogLevel.Debug,
+                Enums.LogLevel.Debug.LogLevelTotalColor());
+        }
+#endif
+
+        if (DebugEnabled.Contains(callingAssembly))
         {
             Send("[" + callingAssembly.GetName().Name + "] " + message, Enums.LogLevel.Debug,
                 Enums.LogLevel.Debug.LogLevelTotalColor());
@@ -84,7 +100,7 @@ public static class Log
 
     public static void SeadRaw(string message, ConsoleColor consoleColor)
     {
-        lock (_consoleLock)
+        lock (ConsoleLock)
         {
             Console.ForegroundColor = consoleColor;
             Console.WriteLine("[" + Misc.GetNowTimeString() + "] " + message);
