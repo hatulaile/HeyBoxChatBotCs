@@ -2,6 +2,8 @@ namespace HeyBoxChatBotCs.Api.Features;
 
 public delegate void CustomEventHandler();
 
+public delegate void CustomAsycnEventHandler();
+
 public class Event
 {
     public Event()
@@ -10,6 +12,7 @@ public class Event
     }
 
     private event CustomEventHandler? InnerEvent;
+    private event CustomAsycnEventHandler? InnerAsyncEvent;
     private static readonly List<Event> EventsValue = [];
     public static IReadOnlyList<Event> List => EventsValue;
 
@@ -37,6 +40,49 @@ public class Event
 
     public void Invoke()
     {
-        InnerEvent?.Invoke();
+        InvokeNormal();
+        InvokeAsync();
+    }
+
+    internal void InvokeNormal()
+    {
+        if (InnerEvent is null)
+        {
+            return;
+        }
+
+        foreach (CustomEventHandler handler in InnerEvent.GetInvocationList()
+                     .Cast<CustomEventHandler>())
+        {
+            try
+            {
+                handler();
+            }
+            catch (Exception exception)
+            {
+                Log.Error("触发事件遇到错误:" + exception);
+            }
+        }
+    }
+
+    internal void InvokeAsync()
+    {
+        if (InnerAsyncEvent is null)
+        {
+            return;
+        }
+
+        foreach (CustomAsycnEventHandler handler in InnerAsyncEvent.GetInvocationList()
+                     .Cast<CustomAsycnEventHandler>())
+        {
+            try
+            {
+                Task.Run(() => handler());
+            }
+            catch (Exception exception)
+            {
+                Log.Error("触发异步事件时遇到错误:" + exception);
+            }
+        }
     }
 }

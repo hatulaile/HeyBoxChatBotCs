@@ -25,7 +25,7 @@ public class StopServerCommand : IConsoleCommand
 #endif
         if (Bot.Instance is null)
         {
-            Log.Error("停止Bot时发现Bot竟然未开启!");
+            Log.Error("停止Bot时发现Bot竟然未开启!?");
             if (args.Count != 0 && int.TryParse(args.ElementAt(0), out code))
             {
             }

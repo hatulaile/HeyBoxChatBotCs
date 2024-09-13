@@ -1,6 +1,6 @@
 ﻿namespace HeyBoxChatBotCs.Api.Enums;
 
-public enum ChannelType
+public enum ChannelTypeId
 {
     Voice = 0,
     Text = 1,

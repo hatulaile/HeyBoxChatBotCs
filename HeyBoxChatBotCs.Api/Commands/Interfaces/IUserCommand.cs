@@ -1,5 +1,6 @@
 ﻿using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Features;
 
 namespace HeyBoxChatBotCs.Api.Commands.Interfaces;
 
-public interface IUserCommand : ICommand<Dictionary<string, List<KeyValuePair<CommandArgsTypeId, string>>>>;
+public interface IUserCommand : ICommand<CommandInfo>;
