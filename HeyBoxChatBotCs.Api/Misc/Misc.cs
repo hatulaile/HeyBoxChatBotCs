@@ -1,9 +1,20 @@
 using HeyBoxChatBotCs.Api.Features;
 
-namespace HeyBoxChatBotCs.Api;
+namespace HeyBoxChatBotCs.Api.Misc;
 
 public static class Misc
 {
+    public static void Assert(bool condition, Action action)
+    {
+        if (!condition)
+        {
+            return;
+        }
+
+        ArgumentNullException.ThrowIfNull(action);
+        action();
+    }
+
     public static string GetNowTimeString()
     {
         DateTime nowTime = DateTime.Now;

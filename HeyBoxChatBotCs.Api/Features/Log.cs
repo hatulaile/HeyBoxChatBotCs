@@ -103,7 +103,7 @@ public static class Log
         lock (ConsoleLock)
         {
             Console.ForegroundColor = consoleColor;
-            Console.WriteLine("[" + Misc.GetNowTimeString() + "] " + message);
+            Console.WriteLine("[" + Misc.Misc.GetNowTimeString() + "] " + message);
             Console.ResetColor();
         }
     }

@@ -3,4 +3,4 @@ using HeyBoxChatBotCs.Api.Features;
 
 namespace HeyBoxChatBotCs.Api.Commands.Interfaces;
 
-public interface IUserCommand : ICommand<CommandInfo>;
+public interface IUserCommand : ICommand<CommandInfo.CommandOption[]>;

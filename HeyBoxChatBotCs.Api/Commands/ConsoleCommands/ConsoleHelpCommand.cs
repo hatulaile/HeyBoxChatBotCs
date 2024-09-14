@@ -19,7 +19,7 @@ public class ConsoleHelpCommand : IConsoleCommand
                  ConsoleCommandProcessor.ConsoleCommandHandler.AllCommand)
         {
             sb.AppendLine(
-                $"  {++count}.{command.Command} - {command.Description} {(!Misc.IsArrayNullOrEmpty(command.Aliases) ? $"别名: {string.Join(',', command.Aliases)}" : string.Empty)}");
+                $"  {++count}.{command.Command} - {command.Description} {(!Misc.Misc.IsArrayNullOrEmpty(command.Aliases) ? $"别名: {string.Join(',', command.Aliases)}" : string.Empty)}");
         }
 
         sb.Append($"共 {count} 条指令可使用");

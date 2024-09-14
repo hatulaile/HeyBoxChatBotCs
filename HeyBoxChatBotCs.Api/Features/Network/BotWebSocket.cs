@@ -1,5 +1,7 @@
+using System.Collections.Specialized;
 using System.Net.WebSockets;
 using System.Text;
+using System.Web;
 
 namespace HeyBoxChatBotCs.Api.Features.Network;
 
@@ -13,11 +15,21 @@ public class BotWebSocket : IDisposable
 
     private const int MAX_BUFFER_SIZE = 1024 * 1024;
 
-    private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=1.27.2";
+
+    public const string WEBSOCKET_URL_PATH = "chatroom/ws/connect";
+
+    public NameValueCollection WebQuery { get; private set; } = new()
+    {
+        { "chat_os_type", "bot" },
+        { "client_type", "heybox_chat" },
+        { "chat_version", "1.27.2" }
+    };
+
+
+    //private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=1.27.2";
     //"client_type=heybox_chat&x_client_type=web&os_type=web&" +
     // "x_os_type=bot&x_app=heybox_chat&chat_os_type=bot&chat_version=999.0.0";
 
-    public readonly Uri WebsocketUri = new Uri("wss://chat.xiaoheihe.cn/chatroom/ws/connect");
 
     public BotWebSocket(Bot.Bot bot)
     {
@@ -51,7 +63,10 @@ public class BotWebSocket : IDisposable
 
             WebSocket.Options.SetRequestHeader("token", Bot.Token);
 
-            WebSocket.ConnectAsync(new Uri(WebsocketUri, QUERY), default).Wait();
+            WebSocket.ConnectAsync(
+                    Misc.HttpMisc.ConstructUrl(BotUrlBase.WEBSOCKET_URL_BASE, WEBSOCKET_URL_PATH, WebQuery),
+                    CancellationToken.None)
+                .Wait();
 
             new Thread(ReceiveServerMessage)
             {
@@ -71,7 +86,7 @@ public class BotWebSocket : IDisposable
             if (retryCount == MAX_RETRY_COUNT)
             {
                 Log.Error("由于失败过多次,关闭 BOT !");
-                Misc.Exit(20000);
+                Misc.Misc.Exit(20000);
             }
 
             Dispose();
@@ -90,7 +105,7 @@ public class BotWebSocket : IDisposable
         {
             Log.Error("ReceiveMessage方法传值错误,程序中断!!!!");
             //todo 退出值带重设
-            Misc.Exit(25000);
+            Misc.Misc.Exit(25000);
             return;
         }
 
@@ -169,7 +184,7 @@ public class BotWebSocket : IDisposable
         {
             Log.Error("Ack方法传值错误,程序中断!!!!");
             //todo 退出值带重设
-            Misc.Exit(25000);
+            Misc.Misc.Exit(25000);
             return;
         }
 

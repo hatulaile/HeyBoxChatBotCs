@@ -91,7 +91,7 @@ public class Loader
                     continue;
                 }
 
-                if (!Misc.IsDerivedFromClass(type, typeof(Plugin<>), true))
+                if (!Misc.Misc.IsDerivedFromClass(type, typeof(Plugin<>), true))
                 {
                     Log.Debug($"\"{type.FullName}\"不是不是一个插件,跳过!");
                     continue;

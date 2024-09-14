@@ -3,29 +3,6 @@ using HeyBoxChatBotCs.Api.Enums;
 using HeyBoxChatBotCs.Api.Features.Network;
 
 namespace HeyBoxChatBotCs.Api.Features.Bot;
-
-public static class BotHttpUri
-{
-    private static readonly Dictionary<BotAction, Uri> BotActionToUri = new()
-    {
-        [BotAction.SendMessage] = new Uri("https://chat.xiaoheihe.cn/chatroom/v2/channel_msg/send"),
-    };
-
-    public static IReadOnlyDictionary<BotAction, Uri> UriDictionary => BotActionToUri;
-
-
-    public static Uri? GetUri(BotAction action)
-    {
-        if (!BotActionToUri.TryGetValue(action, out Uri? uri) || uri is null)
-        {
-            Log.Warn($"未获取到动作地址:{action},可能是还未完成此功能!");
-            return default;
-        }
-
-        return uri;
-    }
-}
-
 public class Bot
 {
     public static Bot? Instance { get; private set; }
@@ -87,7 +64,7 @@ public class Bot
         IsRunning = false;
         BotWebSocket?.Dispose();
         Log.Info("已关闭Bot,即将退出程序!");
-        Misc.Exit(0);
+        Misc.Misc.Exit(0);
     }
 
     //todo 未完成!!!!!!!

@@ -19,7 +19,7 @@ public class StopServerCommand : IConsoleCommand
         {
         }
 
-        Misc.Exit(code);
+        Misc.Misc.Exit(code);
         response = string.Empty;
         return true;
 #endif
@@ -30,7 +30,7 @@ public class StopServerCommand : IConsoleCommand
             {
             }
 
-            Misc.Exit(code);
+            Misc.Misc.Exit(code);
             response = string.Empty;
             return true;
         }
