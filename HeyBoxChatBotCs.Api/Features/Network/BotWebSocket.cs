@@ -2,6 +2,7 @@ using System.Collections.Specialized;
 using System.Net.WebSockets;
 using System.Text;
 using System.Web;
+using HeyBoxChatBotCs.Api.Enums;
 
 namespace HeyBoxChatBotCs.Api.Features.Network;
 
@@ -9,21 +10,11 @@ public class BotWebSocket : IDisposable
 {
     private const int MAX_RETRY_COUNT = 10;
 
-    private const int ERROR_SLEEP_TIME = 10000;
+    private const int ERROR_SLEEP_TIME = 60000;
 
     private const int ACK_SLEEP_TIME = 25000;
 
     private const int MAX_BUFFER_SIZE = 1024 * 1024;
-
-
-    public const string WEBSOCKET_URL_PATH = "chatroom/ws/connect";
-
-    public NameValueCollection WebQuery { get; private set; } = new()
-    {
-        { "chat_os_type", "bot" },
-        { "client_type", "heybox_chat" },
-        { "chat_version", "1.27.2" }
-    };
 
 
     //private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=1.27.2";
@@ -64,7 +55,7 @@ public class BotWebSocket : IDisposable
             WebSocket.Options.SetRequestHeader("token", Bot.Token);
 
             WebSocket.ConnectAsync(
-                    Misc.HttpMisc.ConstructUrl(BotUrlBase.WEBSOCKET_URL_BASE, WEBSOCKET_URL_PATH, WebQuery),
+                    BotRequestUrl.GetUri(BotAction.Connect)!,
                     CancellationToken.None)
                 .Wait();
 
@@ -73,6 +64,8 @@ public class BotWebSocket : IDisposable
                 IsBackground = true,
                 Name = "Websocket Receive Message"
             }.Start(WebSocketCts);
+
+            ReceiveMessage += ServerMessageHandler.System.ServerMessageHandler.ProcessMessage;
 
             new Thread(Ack)
             {
@@ -97,7 +90,7 @@ public class BotWebSocket : IDisposable
     }
 
 
-    public static event ReceiveMessage? ReceiveMessage;
+    public event ReceiveMessage? ReceiveMessage;
 
     protected void ReceiveServerMessage(object? ctsObject)
     {
@@ -137,10 +130,8 @@ public class BotWebSocket : IDisposable
                 }
                 else
                 {
+                    Log.Debug("已接受到服务器信息:" + sb.ToString());
                     ReceiveMessage?.Invoke(sb.ToString());
-                    File.WriteAllText(@"D:/Test.json", sb.ToString());
-                    Log.Debug(sb.ToString());
-                    Log.Debug("已接受到服务器发送信息!");
                 }
 
                 sb.Clear();
@@ -222,6 +213,7 @@ public class BotWebSocket : IDisposable
     public void Dispose()
     {
         IsRunning = false;
+        ReceiveMessage -= ServerMessageHandler.System.ServerMessageHandler.ProcessMessage;
         WebSocketCts?.Cancel();
         WebSocket?.Dispose();
         WebSocketCts?.Dispose();

@@ -9,10 +9,7 @@ public delegate void SendingNetworkRequest();
 
 public class HttpRequest
 {
-    public static JsonSerializerOptions HttpRequestJsonSerializerOptions { get; } = new()
-    {
-    };
-
+    public static JsonSerializerOptions HttpRequestJsonSerializerOptions { get; } = JsonSerializerOptions.Default;
     public static event SendingNetworkRequest? OnSendingNetworkRequest;
 
     public static async Task<object> Get(Uri uri, Type type, IReadOnlyDictionary<string, string>? headers = null,

@@ -52,11 +52,6 @@ public static class Misc
 
         while (source is not null)
         {
-            source = source.BaseType;
-            if (source is null)
-            {
-                continue;
-            }
 
             if (source == target)
             {
@@ -69,6 +64,8 @@ public static class Misc
                     return true;
                 }
             }
+
+            source = source.BaseType;
         }
 
         return false;

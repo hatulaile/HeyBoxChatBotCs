@@ -10,7 +10,7 @@ public static partial class HttpMisc
 {
     internal static readonly char[] PathSeparator = ['/', '\\'];
 
-    public static Uri ConstructUrl(BotRequestUrl.RequestUri requestUrl)
+    public static Uri ConstructUrl(RequestUri requestUrl)
     {
         return ConstructUrl(requestUrl.BaseUrl, requestUrl.Path, requestUrl.Query);
     }
