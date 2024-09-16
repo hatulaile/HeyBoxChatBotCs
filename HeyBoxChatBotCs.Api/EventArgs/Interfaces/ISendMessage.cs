@@ -1,6 +1,5 @@
 namespace HeyBoxChatBotCs.Api.EventArgs.Interfaces;
 
-public interface ISendMessage
+public interface ISendCommand : IBot,IChannel, IRoom, IUser, IMessage
 {
-    
 }

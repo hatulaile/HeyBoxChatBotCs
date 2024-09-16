@@ -16,7 +16,7 @@ public class User : ICommandSender
     [JsonPropertyName("avatar_decoration")]
     public AvatarDecoration Decoration { get; init; }
 
-    public static User? Get(ICommandSender sender)
+    public static User? Get(ICommandSender? sender)
     {
         return sender as User;
     }

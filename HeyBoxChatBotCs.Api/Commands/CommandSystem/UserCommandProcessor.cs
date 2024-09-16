@@ -1,20 +1,43 @@
-﻿namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
+﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
+using HeyBoxChatBotCs.Api.EventArgs.Interfaces;
+using HeyBoxChatBotCs.Api.Features;
+using HeyBoxChatBotCs.Api.Features.Bot;
+using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageDatas;
+
+namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
 public static class UserCommandProcessor
 {
     public static readonly UserCommandHandler UserCommandHandler = CommandSystem.UserCommandHandler.Create();
 
-    public static void ProcessorInput(string json)
+    public static event UserSendCommandAction UserSendCommandAction = ProcessorInput;
+
+    internal static void InvokeUserSendCommandAction(UserSendCommandData commandInfo)
     {
-        // // input = input.TrimStart('/', ' ', '\\', '.');
-        // // Log.Debug($"用户输入简化为: {input}");
-        // // var strings = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        // if (!UserCommandHandler.TryGetCommand(strings[0], out ICommandBase? commandBase))
-        // {
-        //     return;
-        // }
-        //
-        // var args = new ArraySegment<string>(strings, 1, strings.Length - 1);
-        // Log.Debug(Misc.IsArrayNullOrEmpty(args) ? "用户无输入参数" : $"参数数组为:{string.Join(',', args)}");
+        UserSendCommandAction?.Invoke(commandInfo);
+    }
+
+    internal static void ProcessorInput(UserSendCommandData data)
+    {
+        if (Bot.Instance is null)
+        {
+            return;
+        }
+
+        string commandStr = data.Command.Message.TrimStart('/', ' ', '\\', '.');
+        Log.Debug($"用户输入命令:{commandStr}");
+        if (!UserCommandHandler.TryGetCommand(commandStr, out ICommandBase? command))
+        {
+            return;
+        }
+
+        if (command is not IUserCommand userCommand)
+        {
+            return;
+        }
+
+        userCommand.Execute(data.Command.Options, data.User, out string response);
+        Log.Debug($"返回给用户:{response}");
+        Bot.Instance.SendMessage(response);
     }
 }

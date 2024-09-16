@@ -10,7 +10,7 @@ public static class ConsoleCommandProcessor
 
     public static event ReceiveMessage ConsoleInput = ProcessorInput;
 
-    private static CancellationTokenSource? ConsoleReadCts { get; set; }
+    internal static CancellationTokenSource? ConsoleReadCts { get; set; }
 
 
     private static void ProcessorInput(string input)
@@ -21,7 +21,7 @@ public static class ConsoleCommandProcessor
         }
 
         input = input.TrimStart('/', ' ', '\\', '.');
-        Log.Debug($"用户输入简化为: {input}");
+        Log.Debug($"控制台输入简化为: {input}");
         var inputs = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!ConsoleCommandHandler.TryGetCommand(inputs[0], out ICommandBase? command))
         {
@@ -36,7 +36,7 @@ public static class ConsoleCommandProcessor
         }
 
         ArraySegment<string> args = new ArraySegment<string>(inputs, 1, inputs.Length - 1);
-        Log.Debug(Misc.Misc.IsArrayNullOrEmpty(args) ? "用户无输入参数" : $"参数数组为:{string.Join(',', args)}");
+        Log.Debug(Misc.Misc.IsArrayNullOrEmpty(args) ? "控制台无输入参数" : $"参数数组为:{string.Join(',', args)}");
         if (consoleCommand.Execute(args, null, out string response))
         {
             Log.Info(string.IsNullOrWhiteSpace(response) ? "执行完毕!" : response);
@@ -60,6 +60,11 @@ public static class ConsoleCommandProcessor
         while (!ConsoleReadCts.IsCancellationRequested)
         {
             string? consoleInput = Console.ReadLine();
+            if (!ConsoleReadCts.IsCancellationRequested)
+            {
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(consoleInput)) continue;
             Log.Debug($"控制台以获取到用户输入: {consoleInput}");
             ConsoleInput?.Invoke(consoleInput);

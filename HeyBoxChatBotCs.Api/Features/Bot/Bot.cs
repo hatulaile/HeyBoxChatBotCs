@@ -3,6 +3,7 @@ using HeyBoxChatBotCs.Api.Enums;
 using HeyBoxChatBotCs.Api.Features.Network;
 
 namespace HeyBoxChatBotCs.Api.Features.Bot;
+
 public class Bot
 {
     public static Bot? Instance { get; private set; }
@@ -47,7 +48,7 @@ public class Bot
             IsBackground = true,
             Name = "Console ReadLine Thread"
         }.Start();
-        while (true)
+        while (IsRunning)
         {
             Thread.Sleep(1000);
         }
@@ -60,6 +61,7 @@ public class Bot
             Log.Warn("你还未启用Bot,无法关闭!");
         }
 
+        ConsoleCommandProcessor.ConsoleReadCts?.Cancel();
         BotClose?.Invoke(this);
         IsRunning = false;
         BotWebSocket?.Dispose();
