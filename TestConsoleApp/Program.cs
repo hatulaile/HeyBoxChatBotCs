@@ -11,6 +11,6 @@ class Program
     {
         // ServerMessage<UserSendCommandData> data = new ServerMessage<UserSendCommandData>();
         // Log.Info(data is IServerMessage<IServerMessageData>);
-        new Bot("hatu", "NzIxNzIyODY7MTcyNTUyODM5MDgyOTQ3MzY4MTsxMzk3ODkwMzA5ODcwMzY1MjA4").Start();
+        new Bot("hatu", "NzIxNzIyODY7MTcyNjQ1MDU5NTA2Nzk0MTY2NDsyNjMzNDE0ODQ2MTMyMTM4ODY=").Start();
     }
 }

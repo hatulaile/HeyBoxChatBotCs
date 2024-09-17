@@ -8,9 +8,7 @@ namespace HeyBoxChatBotCs.Api.Features.Network;
 
 public class BotWebSocket : IDisposable
 {
-    private const int MAX_RETRY_COUNT = 10;
-
-    private const int ERROR_SLEEP_TIME = 60000;
+    private const int ERROR_SLEEP_TIME = 30000;
 
     private const int ACK_SLEEP_TIME = 25000;
 
@@ -36,7 +34,7 @@ public class BotWebSocket : IDisposable
 
     public ClientWebSocket? WebSocket { get; private set; }
 
-    public void Start(int retryCount = 0)
+    public void Start()
     {
         if (WebSocket?.State is WebSocketState.Open)
         {
@@ -76,16 +74,10 @@ public class BotWebSocket : IDisposable
         catch (Exception e)
         {
             Log.Error(e);
-            if (retryCount == MAX_RETRY_COUNT)
-            {
-                Log.Error("由于失败过多次,关闭 BOT !");
-                Misc.Misc.Exit(20000);
-            }
 
             Dispose();
-            Log.Error($"由于第{retryCount}/{MAX_RETRY_COUNT}次服务器连接错误,将于{ERROR_SLEEP_TIME}毫秒后重连!");
+            Log.Error($"连接错误,将于{ERROR_SLEEP_TIME}毫秒后重连!");
             Thread.Sleep(ERROR_SLEEP_TIME);
-            Start(retryCount + 1);
         }
     }
 

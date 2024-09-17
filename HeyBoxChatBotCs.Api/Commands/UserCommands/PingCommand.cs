@@ -1,11 +1,12 @@
-﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
+﻿using HeyBoxChatBotCs.Api.Commands.CommandSystem;
+using HeyBoxChatBotCs.Api.Commands.Interfaces;
 using HeyBoxChatBotCs.Api.Features;
 
 namespace HeyBoxChatBotCs.Api.Commands.UserCommands;
 
 public class PingCommand : IUserCommand
 {
-    public bool Execute(CommandInfo.CommandOption[] args, ICommandSender? sender, out string response)
+    public bool Execute(UserCommandArgs args, ICommandSender? sender, out string response)
     {
         response = $"Hello {User.Get(sender)?.Name ?? "Unknown"}.PONG";
         return true;

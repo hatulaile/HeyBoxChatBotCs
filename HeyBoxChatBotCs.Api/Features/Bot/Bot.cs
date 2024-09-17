@@ -1,5 +1,7 @@
+using System.Text.Json;
 using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Features.Message;
 using HeyBoxChatBotCs.Api.Features.Network;
 
 namespace HeyBoxChatBotCs.Api.Features.Bot;
@@ -69,13 +71,44 @@ public class Bot
         Misc.Misc.Exit(0);
     }
 
-    //todo 未完成!!!!!!!
-    public void SendMessage(string message)
+    protected async Task<T?> BotSendAction<T>(string body, BotAction action)
+    {
+        if (!BotRequestUrl.TryGetUri(action, out Uri? uri))
+        {
+            Log.Error($"Bot发送{action.ToString()}时未找到URI!");
+            return default;
+        }
+
+        Log.Debug("BOT动作的JSON为:" + body);
+        return await HttpRequest.Post<T>(uri!, body, new Dictionary<string, string>()
+        {
+            { "token", Token }
+        });
+    }
+
+    public async void SendMessage(MessageBase message)
     {
         if (!IsRunning)
         {
             Log.Warn("Bot 暂未启动,请启动后在使用此功能!");
             return;
+        }
+
+        try
+        {
+            string json = JsonSerializer.Serialize((object)message);
+            SendMessageResult? result = await BotSendAction<SendMessageResult>(json, BotAction.SendMessage);
+            if (result is null)
+            {
+                Log.Error("发送信息后返回的数据为空!");
+                return;
+            }
+
+            Log.Debug($"发送信息 \"{result.Message}\" 成功,状态:{result.Status}.");
+        }
+        catch (Exception exception)
+        {
+            Log.Error("发送信息时出错:" + exception);
         }
     }
 }

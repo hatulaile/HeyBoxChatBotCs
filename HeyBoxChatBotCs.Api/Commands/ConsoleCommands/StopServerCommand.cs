@@ -11,7 +11,7 @@ public class StopServerCommand : IConsoleCommand
     public string[]? Aliases { get; } = [];
     public string Description { get; } = "停止全部程序运行";
 
-    public bool Execute(ArraySegment<string> args, ICommandSender? sender, out string response)
+    public bool Execute(ArraySegment<string> args, out string response)
     {
         int code = 0;
 #if DEBUG

@@ -17,7 +17,12 @@ public static class BotRequestUrl
                 { "chat_version", "1.27.2" }
             }),
         [BotAction.SendMessage] = new RequestUri("https://chat.xiaoheihe.cn/", "/chatroom/v2/channel_msg/send",
-            (NameValueCollection?)null),
+            new NameValueCollection
+            {
+                { "chat_os_type", "bot" },
+                { "client_type", "heybox_chat" },
+                { "chat_version", "1.27.2" }
+            }),
     };
 
     public static IReadOnlyDictionary<BotAction, RequestUri> UriDictionary => BotActionToUri;
@@ -27,7 +32,6 @@ public static class BotRequestUrl
         uri = null;
         if (!BotActionToUri.TryGetValue(action, out RequestUri? requestUri))
         {
-            Log.Error($"获取BOT动作地址失败:{action.ToString()}");
             return false;
         }
 

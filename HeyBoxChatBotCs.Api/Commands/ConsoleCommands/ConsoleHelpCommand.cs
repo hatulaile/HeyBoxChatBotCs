@@ -11,7 +11,7 @@ public class ConsoleHelpCommand : IConsoleCommand
     public string[]? Aliases { get; } = [];
     public string Description { get; } = "输出全部控制台命令";
 
-    public bool Execute(ArraySegment<string> args, ICommandSender? sender, out string response)
+    public bool Execute(ArraySegment<string> args, out string response)
     {
         StringBuilder sb = new StringBuilder("以下为全控制台命令:\n");
         int count = 0;

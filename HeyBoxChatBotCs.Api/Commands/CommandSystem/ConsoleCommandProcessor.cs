@@ -37,7 +37,7 @@ public static class ConsoleCommandProcessor
 
         ArraySegment<string> args = new ArraySegment<string>(inputs, 1, inputs.Length - 1);
         Log.Debug(Misc.Misc.IsArrayNullOrEmpty(args) ? "控制台无输入参数" : $"参数数组为:{string.Join(',', args)}");
-        if (consoleCommand.Execute(args, null, out string response))
+        if (consoleCommand.Execute(args, out string response))
         {
             Log.Info(string.IsNullOrWhiteSpace(response) ? "执行完毕!" : response);
         }
