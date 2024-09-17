@@ -10,4 +10,8 @@
         <Product>HeyBoxChatBotCs.Api</Product>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Commands\UserCommands\" />
+    </ItemGroup>
+
 </Project>

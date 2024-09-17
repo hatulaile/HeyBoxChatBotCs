@@ -1,6 +1,4 @@
-﻿using HeyBoxChatBotCs.Api.Commands.UserCommands;
-
-namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
+﻿namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
 public class UserCommandHandler : CommandHandler
 {
@@ -13,6 +11,5 @@ public class UserCommandHandler : CommandHandler
 
     protected override void LoadOriginalCommand()
     {
-        RegisterCommand(new PingCommand());
     }
 }

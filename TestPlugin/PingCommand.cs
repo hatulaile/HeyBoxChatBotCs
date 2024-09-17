@@ -2,8 +2,9 @@
 using HeyBoxChatBotCs.Api.Commands.Interfaces;
 using HeyBoxChatBotCs.Api.Features;
 
-namespace HeyBoxChatBotCs.Api.Commands.UserCommands;
+namespace TestPlugin;
 
+[CommandHandler(typeof(UserCommandHandler))]
 public class PingCommand : IUserCommand
 {
     public bool Execute(UserCommandArgs args, ICommandSender? sender, out string response)

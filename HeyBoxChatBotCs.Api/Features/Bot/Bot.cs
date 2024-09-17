@@ -71,7 +71,7 @@ public class Bot
         Misc.Misc.Exit(0);
     }
 
-    protected async Task<T?> BotSendAction<T>(string body, BotAction action)
+    protected async Task<T?> BotSendAction<T>(object body, BotAction action)
     {
         if (!BotRequestUrl.TryGetUri(action, out Uri? uri))
         {
@@ -80,7 +80,7 @@ public class Bot
         }
 
         Log.Debug("BOT动作的JSON为:" + body);
-        return await HttpRequest.Post<T>(uri!, body, new Dictionary<string, string>()
+        return await HttpRequest.Post<T>(uri!, JsonSerializer.Serialize(body), new Dictionary<string, string>()
         {
             { "token", Token }
         });
@@ -96,8 +96,7 @@ public class Bot
 
         try
         {
-            string json = JsonSerializer.Serialize((object)message);
-            SendMessageResult? result = await BotSendAction<SendMessageResult>(json, BotAction.SendMessage);
+            SendMessageResult? result = await BotSendAction<SendMessageResult>(message, BotAction.SendMessage);
             if (result is null)
             {
                 Log.Error("发送信息后返回的数据为空!");

@@ -32,8 +32,15 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
 
     public Dictionary<Type, Dictionary<Type, ICommandBase>> Commands { get; } = new()
     {
-        [typeof(ConsoleCommandHandler)] =
         {
+            typeof(ConsoleCommandHandler), new Dictionary<Type, ICommandBase>()
+            {
+            }
+        },
+        {
+            typeof(UserCommandHandler), new Dictionary<Type, ICommandBase>()
+            {
+            }
         }
     };
 
@@ -60,6 +67,7 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
             {
                 if (type.GetInterface("ICommandBase") != typeof(ICommandBase) ||
                     !type.IsDefined(typeof(CommandHandlerAttribute), true)) continue;
+
                 foreach (CustomAttributeData data in type.GetCustomAttributesData()
                              .Where(data => data.AttributeType == typeof(CommandHandlerAttribute)))
                 {
@@ -78,21 +86,22 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
                             {
                                 ConsoleCommandProcessor.ConsoleCommandHandler.RegisterCommand(command);
                             }
+                            else if (key == typeof(UserCommandHandler))
+                            {
+                                UserCommandProcessor.UserCommandHandler.RegisterCommand(command);
+                            }
                         }
                         catch (CommandRegisteredException registeredException)
                         {
-                            Log.Error(registeredException);
-                            Log.Error($"注册命令时 {command.Command} 已注册,不知道为什么重复注册了!");
+                            Log.Error($"注册命令时 {command.Command} 已注册:" + registeredException);
                         }
                         catch (ArgumentException argumentException)
                         {
-                            Log.Error(argumentException);
-                            Log.Error("注册命令遇到参数异常!");
+                            Log.Error("注册命令遇到参数异常:" + argumentException);
                         }
                         catch (Exception exception)
                         {
-                            Log.Error(exception);
-                            Log.Error("注册命令遇到未知异常!");
+                            Log.Error("注册命令遇到未知异常:" + exception);
                         }
 
                         Commands[key][type] = command;

@@ -1,6 +1,3 @@
 ﻿namespace HeyBoxChatBotCs.Api.Commands.Interfaces;
 
-public interface ICommandSender
-{
-    
-}
+public interface ICommandSender;
