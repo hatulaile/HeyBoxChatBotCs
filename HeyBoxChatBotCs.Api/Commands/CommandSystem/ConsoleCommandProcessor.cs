@@ -60,7 +60,7 @@ public static class ConsoleCommandProcessor
         while (!ConsoleReadCts.IsCancellationRequested)
         {
             string? consoleInput = Console.ReadLine();
-            if (!ConsoleReadCts.IsCancellationRequested)
+            if (ConsoleReadCts.IsCancellationRequested)
             {
                 return;
             }

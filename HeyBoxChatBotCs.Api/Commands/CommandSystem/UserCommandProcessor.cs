@@ -9,7 +9,7 @@ namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
 public static class UserCommandProcessor
 {
-    public const string REPLY_MESSAGE = """@{id:%USERID%}%MESSAGE%""";
+    public const string REPLY_MESSAGE = """@{id:%USERID%} %MESSAGE%""";
 
     public static readonly UserCommandHandler UserCommandHandler = CommandSystem.UserCommandHandler.Create();
 
