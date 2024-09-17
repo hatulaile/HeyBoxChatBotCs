@@ -7,48 +7,62 @@ namespace HeyBoxChatBotCs.Api.Features.Network;
 
 public delegate void SendingNetworkRequest();
 
-public class HttpRequest
+public static class HttpRequest
 {
     public static JsonSerializerOptions HttpRequestJsonSerializerOptions { get; } = JsonSerializerOptions.Default;
     public static event SendingNetworkRequest? OnSendingNetworkRequest;
 
-    public static async Task<object> Get(Uri uri, Type type, IReadOnlyDictionary<string, string>? headers = null
+    public static async Task<HttpResponseMessageValue> Get(Uri uri, Type type,
+        Dictionary<string, string>? headers = null
     )
     {
-        return JsonSerializer.Deserialize(await Get(uri, headers), type);
+        HttpResponseMessageValue<string?> ret = await Get(uri, headers);
+        return new HttpResponseMessageValue(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize(ret.Value, type));
     }
 
-    public static async Task<T> Get<T>(Uri uri, IReadOnlyDictionary<string, string>? headers = null)
+    public static async Task<HttpResponseMessageValue<T?>> Get<T>(Uri uri, Dictionary<string, string>? headers = null)
     {
-        return JsonSerializer.Deserialize<T>(await Get(uri, headers));
+        HttpResponseMessageValue<string?> ret = await Get(uri, headers);
+        return new HttpResponseMessageValue<T?>(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize<T>(ret.Value));
     }
 
-    public static async Task<string> Get(Uri uri, IReadOnlyDictionary<string, string>? headers = null)
+    public static async Task<HttpResponseMessageValue<string?>> Get(Uri uri, Dictionary<string, string>? headers = null)
     {
-        return await GetResponseMessageAsync(uri, headers).Result.Content.ReadAsStringAsync();
+        var ret = await GetResponseMessageAsync(uri, headers);
+        return new HttpResponseMessageValue<string?>(ret, await ret.Content.ReadAsStringAsync());
     }
 
-    public static async Task<object> Get(string uri, Type type, IReadOnlyDictionary<string, string>? headers = null,
+    public static async Task<HttpResponseMessageValue> Get(string uri, Type type,
+        Dictionary<string, string>? headers = null,
         string? path = null, NameValueCollection? query = null
     )
     {
-        return JsonSerializer.Deserialize(await Get(uri, headers, path, query), type);
+        HttpResponseMessageValue<string?> ret = await Get(uri, headers, path, query);
+        return new HttpResponseMessageValue(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize(ret.Value, type));
     }
 
-    public static async Task<T> Get<T>(string uri, IReadOnlyDictionary<string, string>? headers = null,
+    public static async Task<HttpResponseMessageValue<T?>> Get<T>(string uri,
+        Dictionary<string, string>? headers = null,
         string? path = null, NameValueCollection? query = null)
     {
-        return JsonSerializer.Deserialize<T>(await Get(uri, headers, path, query));
+        HttpResponseMessageValue<string?> ret = await Get(uri, headers, path, query);
+        return new HttpResponseMessageValue<T?>(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize<T>(ret.Value));
     }
 
-    public static async Task<string> Get(string uri, IReadOnlyDictionary<string, string>? headers = null,
+    public static async Task<HttpResponseMessageValue<string?>> Get(string uri,
+        Dictionary<string, string>? headers = null,
         string? path = null, NameValueCollection? query = null)
     {
-        return await GetResponseMessageAsync(uri, headers, path, query).Result.Content.ReadAsStringAsync();
+        var ret = await GetResponseMessageAsync(uri, headers, path, query);
+        return new HttpResponseMessageValue<string?>(ret, await ret.Content.ReadAsStringAsync());
     }
 
     internal static async Task<HttpResponseMessage> GetResponseMessageAsync(Uri uri,
-        IReadOnlyDictionary<string, string>? headers)
+        Dictionary<string, string>? headers)
     {
         using HttpClient httpClient = new HttpClient();
         if (headers is not null)
@@ -64,7 +78,7 @@ public class HttpRequest
     }
 
     internal static async Task<HttpResponseMessage> GetResponseMessageAsync(string uri,
-        IReadOnlyDictionary<string, string>? headers, string? path, NameValueCollection? query)
+        Dictionary<string, string>? headers, string? path, NameValueCollection? query)
     {
         using HttpClient httpClient = new HttpClient();
         if (headers is not null)
@@ -80,49 +94,56 @@ public class HttpRequest
     }
 
 
-    public static async Task<object> Post(Uri uri, string body, Type type,
+    public static async Task<HttpResponseMessageValue> Post(Uri uri, string body, Type type,
         Dictionary<string, string>? headers = null,
         string contentType = "application/json", Encoding? encoding = null)
     {
-        return JsonSerializer.Deserialize(await Post(uri, body, headers, contentType, encoding), type);
+        HttpResponseMessageValue<string?> ret = await Post(uri, body, headers, contentType, encoding);
+        return new HttpResponseMessageValue(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize(ret.Value, type));
     }
 
-    public static async Task<T> Post<T>(Uri uri, string body,
+    public static async Task<HttpResponseMessageValue<T?>> Post<T>(Uri uri, string body,
         Dictionary<string, string>? headers = null,
         string contentType = "application/json", Encoding? encoding = null)
     {
-        return JsonSerializer.Deserialize<T>(await Post(uri, body, headers, contentType, encoding));
+        HttpResponseMessageValue<string?> ret = await Post(uri, body, headers, contentType, encoding);
+        return new HttpResponseMessageValue<T?>(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize<T>(ret.Value));
     }
 
-    public static async Task<string> Post(Uri uri, string body,
+    public static async Task<HttpResponseMessageValue<string?>> Post(Uri uri, string body,
         Dictionary<string, string>? headers = null,
         string contentType = "application/json", Encoding? encoding = null)
     {
-        return await PostResponseMessageAsync(uri, body, headers, contentType, encoding).Result
-            .Content
-            .ReadAsStringAsync();
+        HttpResponseMessage ret = await PostResponseMessageAsync(uri, body, headers, contentType, encoding);
+        return new HttpResponseMessageValue<string?>(ret, await ret.Content.ReadAsStringAsync());
     }
 
-    public static async Task<object> Post(string uri, IReadOnlyDictionary<object, object> body, Type type,
-        IReadOnlyDictionary<string, string>? headers = null, string? path = null, NameValueCollection? query = null,
+    public static async Task<HttpResponseMessageValue> Post(string uri, Dictionary<object, object> body, Type type,
+        Dictionary<string, string>? headers = null, string? path = null, NameValueCollection? query = null,
         string contentType = "application/json", Encoding? encoding = null)
     {
-        return JsonSerializer.Deserialize(await Post(uri, body, headers, path, query, contentType, encoding), type);
+        HttpResponseMessageValue<string?> ret = await Post(uri, body, headers, path, query, contentType, encoding);
+        return new HttpResponseMessageValue(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize(ret.Value, type));
     }
 
-    public static async Task<T> Post<T>(string uri, IReadOnlyDictionary<object, object> body,
-        IReadOnlyDictionary<string, string>? headers = null, string? path = null, NameValueCollection? query = null,
+    public static async Task<HttpResponseMessageValue<T?>> Post<T>(string uri, Dictionary<object, object> body,
+        Dictionary<string, string>? headers = null, string? path = null, NameValueCollection? query = null,
         string contentType = "application/json", Encoding? encoding = null)
     {
-        return JsonSerializer.Deserialize<T>(await Post(uri, body, headers, path, query, contentType, encoding));
+        HttpResponseMessageValue<string?> ret = await Post(uri, body, headers, path, query, contentType, encoding);
+        return new HttpResponseMessageValue<T?>(ret.Response,
+            ret.Value is null ? default : JsonSerializer.Deserialize<T>(ret.Value));
     }
 
-    public static async Task<string> Post(string uri, IReadOnlyDictionary<object, object> body,
-        IReadOnlyDictionary<string, string>? headers = null, string? path = null, NameValueCollection? query = null,
+    public static async Task<HttpResponseMessageValue<string?>> Post(string uri, Dictionary<object, object> body,
+        Dictionary<string, string>? headers = null, string? path = null, NameValueCollection? query = null,
         string contentType = "application/json", Encoding? encoding = null)
     {
-        return await PostResponseMessageAsync(uri, body, headers, path, query, contentType, encoding).Result.Content
-            .ReadAsStringAsync();
+        var ret = await PostResponseMessageAsync(uri, body, headers, path, query, contentType, encoding);
+        return new HttpResponseMessageValue<string?>(ret, await ret.Content.ReadAsStringAsync());
     }
 
     internal static async Task<HttpResponseMessage> PostResponseMessageAsync(Uri uri,
@@ -146,7 +167,7 @@ public class HttpRequest
     }
 
     internal static async Task<HttpResponseMessage> PostResponseMessageAsync(string uri,
-        IReadOnlyDictionary<object, object> body, IReadOnlyDictionary<string, string>? headers, string? path,
+        Dictionary<object, object> body, Dictionary<string, string>? headers, string? path,
         NameValueCollection? query,
         string contentType, Encoding? encoding)
     {
@@ -165,4 +186,28 @@ public class HttpRequest
                 encoding ?? Encoding.UTF8, contentType);
         return await httpClient.PostAsync(HttpMisc.ConstructUrl(uri, path, query), stringContent);
     }
+}
+
+public class HttpResponseMessageValue
+{
+    public HttpResponseMessageValue(HttpResponseMessage response, object? value)
+    {
+        Response = response;
+        Value = value;
+    }
+
+    public HttpResponseMessage Response { get; init; }
+    public object? Value { get; init; }
+}
+
+public class HttpResponseMessageValue<TValue>
+{
+    public HttpResponseMessageValue(HttpResponseMessage response, TValue value)
+    {
+        Response = response;
+        Value = value;
+    }
+
+    public HttpResponseMessage Response { get; init; }
+    public TValue Value { get; init; }
 }

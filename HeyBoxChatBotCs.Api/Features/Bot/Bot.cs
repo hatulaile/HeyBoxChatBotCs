@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Enums;
@@ -8,6 +9,11 @@ namespace HeyBoxChatBotCs.Api.Features.Bot;
 
 public class Bot
 {
+    public static readonly JsonSerializerOptions BotActionJsonSerializerOptions = new()
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+
     public static Bot? Instance { get; private set; }
 
     public Bot(string id, string token)
@@ -68,10 +74,11 @@ public class Bot
         IsRunning = false;
         BotWebSocket?.Dispose();
         Log.Info("已关闭Bot,即将退出程序!");
-        Misc.Misc.Exit(0);
+        Misc.Misc.Exit();
     }
 
-    protected async Task<T?> BotSendAction<T>(object body, BotAction action)
+    protected async Task<HttpResponseMessageValue<T?>?> BotSendAction<T>(object body, BotAction action,
+        string contentType = "application/json")
     {
         if (!BotRequestUrl.TryGetUri(action, out Uri? uri))
         {
@@ -79,11 +86,12 @@ public class Bot
             return default;
         }
 
-        Log.Debug("BOT动作的JSON为:" + body);
-        return await HttpRequest.Post<T>(uri!, JsonSerializer.Serialize(body), new Dictionary<string, string>()
+        string json = JsonSerializer.Serialize(body, BotActionJsonSerializerOptions);
+        Log.Debug("BOT动作的JSON为:" + json);
+        return await HttpRequest.Post<T>(uri!, json, new Dictionary<string, string>
         {
             { "token", Token }
-        });
+        }, contentType: contentType);
     }
 
     public async void SendMessage(MessageBase message)
@@ -96,14 +104,22 @@ public class Bot
 
         try
         {
-            SendMessageResult? result = await BotSendAction<SendMessageResult>(message, BotAction.SendMessage);
-            if (result is null)
+            HttpResponseMessageValue<SendMessageResult?>? result =
+                await BotSendAction<SendMessageResult>(message, BotAction.SendMessage);
+            if (result?.Value is null)
             {
                 Log.Error("发送信息后返回的数据为空!");
                 return;
             }
 
-            Log.Debug($"发送信息 \"{result.Message}\" 成功,状态:{result.Status}.");
+            if (!result.Response.IsSuccessStatusCode)
+            {
+                Log.Error($"发送信息失败,返回信息:{result.Value.Message}!");
+            }
+            else
+            {
+                Log.Debug($"发送信息返回,信息:\"{result.Value.Message}\",状态:{result.Value.Status}.");
+            }
         }
         catch (Exception exception)
         {
