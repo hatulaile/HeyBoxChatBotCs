@@ -1,5 +1,4 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
-using HeyBoxChatBotCs.Api.EventArgs.Interfaces;
 using HeyBoxChatBotCs.Api.Features;
 using HeyBoxChatBotCs.Api.Features.Bot;
 using HeyBoxChatBotCs.Api.Features.Message;
@@ -11,7 +10,7 @@ public static class UserCommandProcessor
 {
     public const string REPLY_MESSAGE = """@{id:%USERID%} %MESSAGE%""";
 
-    public static readonly UserCommandHandler UserCommandHandler = CommandSystem.UserCommandHandler.Create();
+    public static readonly UserCommandHandler UserCommandHandler = UserCommandHandler.Create();
 
     public static event UserSendCommandAction UserSendCommandAction = ProcessorInput;
 

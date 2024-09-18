@@ -1,5 +1,4 @@
-﻿using HeyBoxChatBotCs.Api.EventArgs.Interfaces;
-using HeyBoxChatBotCs.Api.Features;
+﻿using HeyBoxChatBotCs.Api.Features;
 
 namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 

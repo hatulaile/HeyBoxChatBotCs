@@ -1,6 +1,4 @@
-﻿using System.Net.Mime;
-
-namespace HeyBoxChatBotCs.Api.ServerMessageHandler.System;
+﻿namespace HeyBoxChatBotCs.Api.ServerMessageHandler.System;
 
 public interface IServerMessageData
 {

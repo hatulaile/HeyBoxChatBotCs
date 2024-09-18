@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using HeyBoxChatBotCs.Api.Enums;
 
 namespace HeyBoxChatBotCs.Api.Features.Message;

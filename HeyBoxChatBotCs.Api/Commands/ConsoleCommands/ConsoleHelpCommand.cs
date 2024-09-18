@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Commands.Interfaces;
-using HeyBoxChatBotCs.Api.Enums;
 
 namespace HeyBoxChatBotCs.Api.Commands.ConsoleCommands;
 
@@ -19,7 +18,7 @@ public class ConsoleHelpCommand : IConsoleCommand
                  ConsoleCommandProcessor.ConsoleCommandHandler.AllCommand)
         {
             sb.AppendLine(
-                $"  {++count}.{command.Command} - {command.Description} {(!Misc.Misc.IsArrayNullOrEmpty(command.Aliases) ? $"别名: {string.Join(',', command.Aliases)}" : string.Empty)}");
+                $"  {++count}.{command.Command} - {command.Description} {(!Misc.Misc.IsArrayNullOrEmpty(command.Aliases) ? $"别名: {string.Join(',', command.Aliases!)}" : string.Empty)}");
         }
 
         sb.Append($"共 {count} 条指令可使用");

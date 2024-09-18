@@ -2,8 +2,10 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Features.Bot.BotActionResult;
 using HeyBoxChatBotCs.Api.Features.Message;
 using HeyBoxChatBotCs.Api.Features.Network;
+using HeyBoxChatBotCs.Api.Features.Network.HttpBody;
 
 namespace HeyBoxChatBotCs.Api.Features.Bot;
 
@@ -88,13 +90,27 @@ public class Bot
 
         string json = JsonSerializer.Serialize(body, BotActionJsonSerializerOptions);
         Log.Debug("BOT动作的JSON为:" + json);
-        return await HttpRequest.Post<T>(uri!, json, new Dictionary<string, string>
+        return await HttpRequest.Post<T>(uri!, new RawBody(json, contentType), new Dictionary<string, string>
         {
             { "token", Token }
-        }, contentType: contentType);
+        });
     }
 
-    public async void SendMessage(MessageBase message)
+    protected async Task<HttpResponseMessageValue<T?>?> BotSendAction<T>(FormDataBody body, BotAction action)
+    {
+        if (!BotRequestUrl.TryGetUri(action, out Uri? uri))
+        {
+            Log.Error($"Bot发送{action.ToString()}时未找到URI!");
+            return default;
+        }
+
+        return await HttpRequest.Post<T>(uri!, body, new Dictionary<string, string>
+        {
+            { "token", Token }
+        });
+    }
+
+    public void SendMessage(MessageBase message)
     {
         if (!IsRunning)
         {
@@ -104,8 +120,9 @@ public class Bot
 
         try
         {
-            HttpResponseMessageValue<SendMessageResult?>? result =
-                await BotSendAction<SendMessageResult>(message, BotAction.SendMessage);
+            HttpResponseMessageValue<BotActionResult<SendMessageResult>?>? result =
+                BotSendAction<BotActionResult<SendMessageResult>>(message, BotAction.SendMessage)
+                    .Result;
             if (result?.Value is null)
             {
                 Log.Error("发送信息后返回的数据为空!");
@@ -114,7 +131,7 @@ public class Bot
 
             if (!result.Response.IsSuccessStatusCode)
             {
-                Log.Error($"发送信息失败,返回信息:{result.Value.Message}!");
+                Log.Error($"发送信息失败,返回信息:{result.Value.Message}!状态:{result.Value.Status}");
             }
             else
             {
@@ -124,6 +141,61 @@ public class Bot
         catch (Exception exception)
         {
             Log.Error("发送信息时出错:" + exception);
+        }
+    }
+
+    public void Upload(FileInfo file, string fileName = "")
+    {
+        Upload(file.FullName, fileName);
+    }
+
+    public Uri? Upload(string filePath, string fileName = "")
+    {
+        try
+        {
+            HttpResponseMessageValue<BotActionResult<UploadResult>?>? result;
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                result = BotSendAction<BotActionResult<UploadResult>>(
+                    new FormDataBody(new FormDataBodyFile("file", filePath, fileName)),
+                    BotAction.Upload).Result;
+            }
+            else
+            {
+                result = BotSendAction<BotActionResult<UploadResult>>(
+                    new FormDataBody(new FormDataBodyFile("file", filePath)),
+                    BotAction.Upload).Result;
+            }
+
+            if (result is null)
+            {
+                Log.Error("上传文件文件返回为空!");
+                return null;
+            }
+
+            if (result.Value is null)
+            {
+                Log.Error("上传文件后返回的数据为空!");
+                return null;
+            }
+
+            if (!result.Response.IsSuccessStatusCode)
+            {
+                Log.Error($"上传文件失败,返回信息:{result.Value.Message}!状态:{result.Value.Status}");
+                return null;
+            }
+            else
+            {
+                Log.Debug(
+                    $"上传文件返回,信息:\"{result.Value.Message}\",状态:{result.Value.Status},链接:{result.Value.Result.Uri}");
+            }
+
+            return result.Value.Result.Uri;
+        }
+        catch (Exception exception)
+        {
+            Log.Error("上传媒体文件遇到错误:" + exception);
+            return null;
         }
     }
 }

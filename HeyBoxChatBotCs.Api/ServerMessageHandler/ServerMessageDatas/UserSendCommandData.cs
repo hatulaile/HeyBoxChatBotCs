@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using HeyBoxChatBotCs.Api.EventArgs.Interfaces;
 using HeyBoxChatBotCs.Api.Features;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.Interfaces;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.System;

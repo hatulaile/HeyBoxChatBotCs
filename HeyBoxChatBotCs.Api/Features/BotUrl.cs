@@ -9,20 +9,33 @@ public static class BotRequestUrl
 {
     private static Dictionary<BotAction, RequestUri> BotActionToUri { get; } = new()
     {
-        [BotAction.Connect] = new RequestUri("wss://chat.xiaoheihe.cn/", "/chatroom/ws/connect",
-            new NameValueCollection
+        {
+            BotAction.Connect, new RequestUri("wss://chat.xiaoheihe.cn/", "/chatroom/ws/connect",
+                new NameValueCollection
+                {
+                    { "chat_os_type", "bot" },
+                    { "client_type", "heybox_chat" },
+                    { "chat_version", "1.27.2" }
+                })
+        },
+        {
+            BotAction.SendMessage, new RequestUri("https://chat.xiaoheihe.cn/", "/chatroom/v2/channel_msg/send",
+                new NameValueCollection
+                {
+                    { "chat_os_type", "bot" },
+                    { "client_type", "heybox_chat" },
+                    { "chat_version", "1.27.2" }
+                })
+        },
+        {
+            BotAction.Upload,
+            new RequestUri("https://chat-upload.xiaoheihe.cn/", "/upload", new NameValueCollection()
             {
                 { "chat_os_type", "bot" },
                 { "client_type", "heybox_chat" },
                 { "chat_version", "1.27.2" }
-            }),
-        [BotAction.SendMessage] = new RequestUri("https://chat.xiaoheihe.cn/", "/chatroom/v2/channel_msg/send",
-            new NameValueCollection
-            {
-                { "chat_os_type", "bot" },
-                { "client_type", "heybox_chat" },
-                { "chat_version", "1.27.2" }
-            }),
+            })
+        }
     };
 
     public static IReadOnlyDictionary<BotAction, RequestUri> UriDictionary => BotActionToUri;

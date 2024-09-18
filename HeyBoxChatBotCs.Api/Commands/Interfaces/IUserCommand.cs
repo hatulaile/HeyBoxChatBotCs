@@ -1,6 +1,4 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.CommandSystem;
-using HeyBoxChatBotCs.Api.Enums;
-using HeyBoxChatBotCs.Api.Features;
 
 namespace HeyBoxChatBotCs.Api.Commands.Interfaces;
 

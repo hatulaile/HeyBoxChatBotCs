@@ -1,5 +1,4 @@
 using HeyBoxChatBotCs.Api.EventArgs.User;
-using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageDatas;
 
 namespace HeyBoxChatBotCs.Api.Features.Events;
 

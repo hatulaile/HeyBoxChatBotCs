@@ -1,7 +1,5 @@
-using System.Collections.Specialized;
 using System.Net.WebSockets;
 using System.Text;
-using System.Web;
 using HeyBoxChatBotCs.Api.Enums;
 
 namespace HeyBoxChatBotCs.Api.Features.Network;
@@ -122,7 +120,7 @@ public class BotWebSocket : IDisposable
                 }
                 else
                 {
-                    Log.Debug("已接受到服务器信息:" + sb.ToString());
+                    Log.Debug("已接受到服务器信息:" + sb);
                     ReceiveMessage?.Invoke(sb.ToString());
                 }
 
