@@ -20,13 +20,13 @@ public abstract class MessageBase
     }
 
 
-    [JsonPropertyName("reply_id")] public string ReplyMessageId { get; init; }
-    [JsonPropertyName("heychat_ack_id")] public string AckId { get; init; }
-    [JsonPropertyName("msg_type")] public MessageType Type { get; init; }
-    [JsonPropertyName("channel_id")] public string ChannelId { get; init; }
-    [JsonPropertyName("room_id")] public string RoomId { get; init; }
+    [JsonPropertyName("reply_id")] public string ReplyMessageId { get; protected set; }
+    [JsonPropertyName("heychat_ack_id")] public string AckId { get; protected set; }
+    [JsonPropertyName("msg_type")] public MessageType Type { get; protected set; }
+    [JsonPropertyName("channel_id")] public string ChannelId { get; protected set; }
+    [JsonPropertyName("room_id")] public string RoomId { get; protected set; }
 
-    [JsonPropertyName("addition")] public string Addition { get; init; }
+    [JsonPropertyName("addition")] public string Addition { get; protected set; }
 }
 
 public class MessageAddition

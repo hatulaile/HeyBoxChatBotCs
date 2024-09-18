@@ -10,7 +10,7 @@ public class BotWebSocket : IDisposable
 
     private const int ACK_SLEEP_TIME = 25000;
 
-    private const int MAX_BUFFER_SIZE = 1024 * 1024;
+    private const int MAX_BUFFER_SIZE = 1024;
 
 
     //private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=1.27.2";
@@ -159,6 +159,8 @@ public class BotWebSocket : IDisposable
         }
     }
 
+    protected readonly ArraySegment<byte> AckSendMessage = "PING"u8.ToArray();
+
     protected void Ack(object? ctsObject)
     {
         if (ctsObject is not CancellationTokenSource cts)
@@ -182,7 +184,7 @@ public class BotWebSocket : IDisposable
             if (WebSocket?.State is WebSocketState.Open)
             {
                 Log.Debug("机器人正在发送心跳!");
-                WebSocket.SendAsync("PING"u8.ToArray(), WebSocketMessageType.Text, true, default).Wait();
+                WebSocket.SendAsync(AckSendMessage, WebSocketMessageType.Text, true, default).Wait();
             }
             else
             {
