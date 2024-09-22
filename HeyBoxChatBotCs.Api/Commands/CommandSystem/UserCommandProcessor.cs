@@ -33,7 +33,7 @@ public static class UserCommandProcessor
             ? "用户无输入参数"
             : "用户输入参数+" + string.Join(' ',
                 data.Command.Options!.ToDictionary(x => x.Type.ToString(), x => $"Name:{x.Name},Value:{x.Value}")));
-        if (!UserCommandHandler.TryGetCommandAsync(commandStr, out ICommandBase? command))
+        if (!UserCommandHandler.TryGetCommand(commandStr, out ICommandBase? command))
         {
             return;
         }

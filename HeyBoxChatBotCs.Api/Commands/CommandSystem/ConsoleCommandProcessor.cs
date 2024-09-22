@@ -28,7 +28,7 @@ public static class ConsoleCommandProcessor
         input = input.TrimStart('/', ' ', '\\', '.');
         Log.Debug($"控制台输入简化为: {input}");
         var inputs = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        if (!ConsoleCommandHandler.TryGetCommandAsync(inputs[0], out ICommandBase? command))
+        if (!ConsoleCommandHandler.TryGetCommand(inputs[0], out ICommandBase? command))
         {
             Log.Warn("未找到输入的命令,可以使用 help 查看所有命令!");
             return;

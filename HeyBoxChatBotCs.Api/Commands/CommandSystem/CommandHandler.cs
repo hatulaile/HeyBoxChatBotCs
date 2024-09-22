@@ -1,4 +1,5 @@
-﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
+﻿using System.Diagnostics.CodeAnalysis;
+using HeyBoxChatBotCs.Api.Commands.Interfaces;
 using HeyBoxChatBotCs.Api.Exceptions;
 
 namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
@@ -10,7 +11,7 @@ public abstract class CommandHandler
 
     public virtual IEnumerable<ICommandBase> AllCommand => Commands.Values;
 
-    public virtual bool TryGetCommandAsync(string query, out ICommandBase? command)
+    public virtual bool TryGetCommand(string query, [NotNullWhen(true)] out ICommandBase? command)
     {
         if (CommandAliases.TryGetValue(query, out string? str))
         {
