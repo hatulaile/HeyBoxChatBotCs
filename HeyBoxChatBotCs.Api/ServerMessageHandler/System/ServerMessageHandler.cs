@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using HeyBoxChatBotCs.Api.Features;
+using HeyBoxChatBotCs.Api.ServerMessageHandler.DataConverters;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.DataHandlers;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageData;
 
@@ -11,12 +12,12 @@ internal static class ServerMessageHandler
 {
     private static JsonSerializerOptions JsonSerializerOptions { get; } = JsonSerializerOptions.Default;
 
-    public static FrozenDictionary<string, KeyValuePair<Type, IDataHandler>> HandlerMapping { get; } =
-        new Dictionary<string, KeyValuePair<Type, IDataHandler>>()
+    public static FrozenDictionary<string, KeyValuePair<IDataConverter, IDataHandler>> HandlerMapping { get; } =
+        new Dictionary<string, KeyValuePair<IDataConverter, IDataHandler>>()
         {
             {
                 "50",
-                new KeyValuePair<Type, IDataHandler>(typeof(ServerMessage<UserSendCommandData>),
+                new KeyValuePair<IDataConverter, IDataHandler>(new UserSendCommandConverter(),
                     new UserSendCommandHandler())
             }
         }.ToFrozenDictionary();
@@ -43,27 +44,14 @@ internal static class ServerMessageHandler
 
     internal static async Task ProcessMessageAsync(string typeStr, string json)
     {
-        if (!HandlerMapping.TryGetValue(typeStr, out KeyValuePair<Type, IDataHandler> type))
+        if (!HandlerMapping.TryGetValue(typeStr, out KeyValuePair<IDataConverter, IDataHandler> type))
         {
             Log.Error($"解析服务器发送信息时失败:发现未知服务器信息类型 {typeStr}");
             return;
         }
-
-        if (!Misc.Misc.IsDerivedFromClass(type.Key, typeof(ServerMessage<>), true))
-        {
-            Log.Error($"解析服务器发送信息时失败: {typeStr} 对应的类型是错误的!");
-            return;
-        }
-
-        if (type.Key.IsGenericTypeDefinition)
-        {
-            Log.Error($"解析服务器发送信息时失败: {typeStr} 对应的类型是没有泛型构造!");
-            return;
-        }
-
         try
         {
-            object? message = JsonSerializer.Deserialize(json, type.Key, JsonSerializerOptions);
+            object? message = await type.Key.ConverterAsync(json);
             if (message is null)
             {
                 Log.Error("解析服务器发送信息时失败:Json解析的结果不是期望结果!");
