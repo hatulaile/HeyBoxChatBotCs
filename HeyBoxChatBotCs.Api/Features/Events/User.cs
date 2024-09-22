@@ -6,8 +6,8 @@ public static class User
 {
     public static Event<UserSendCommandEventArgs> UserSendCommand { get; set; } = new();
 
-    public static void OnUserSendCommand(UserSendCommandEventArgs ev)
+    public static async Task OnUserSendCommandAsync(UserSendCommandEventArgs ev)
     {
-        UserSendCommand.Invoke(ev);
+        await UserSendCommand.InvokeAsync(ev);
     }
 }

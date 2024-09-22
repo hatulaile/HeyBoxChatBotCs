@@ -2,5 +2,4 @@
 
 public interface IServerMessageData
 {
-    public void InvokeRelatedEvent();
 }

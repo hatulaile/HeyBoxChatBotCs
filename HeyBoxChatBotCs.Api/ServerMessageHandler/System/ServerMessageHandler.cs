@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using System.Collections.Frozen;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using HeyBoxChatBotCs.Api.Features;
-using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageDatas;
+using HeyBoxChatBotCs.Api.ServerMessageHandler.DataHandlers;
+using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageData;
 
 namespace HeyBoxChatBotCs.Api.ServerMessageHandler.System;
 
@@ -10,12 +11,17 @@ internal static class ServerMessageHandler
 {
     private static JsonSerializerOptions JsonSerializerOptions { get; } = JsonSerializerOptions.Default;
 
-    public static Dictionary<string, Type> TypeMapping { get; } = new()
-    {
-        { "50", typeof(ServerMessage<UserSendCommandData>) }
-    };
+    public static FrozenDictionary<string, KeyValuePair<Type, IDataHandler>> HandlerMapping { get; } =
+        new Dictionary<string, KeyValuePair<Type, IDataHandler>>()
+        {
+            {
+                "50",
+                new KeyValuePair<Type, IDataHandler>(typeof(ServerMessage<UserSendCommandData>),
+                    new UserSendCommandHandler())
+            }
+        }.ToFrozenDictionary();
 
-    internal static void ProcessMessage(string json)
+    internal static async void ProcessMessageAsync(string json)
     {
         ArgumentNullException.ThrowIfNull(json);
         JsonObject? jsonObject = JsonSerializer.Deserialize<JsonObject>(json);
@@ -32,53 +38,39 @@ internal static class ServerMessageHandler
             return;
         }
 
-        ProcessMessage(jsonNode.ToString(), json);
+        await ProcessMessageAsync(jsonNode.ToString(), json);
     }
 
-    internal static void ProcessMessage(string type, string json)
+    internal static async Task ProcessMessageAsync(string typeStr, string json)
     {
-        if (!TypeMapping.TryGetValue(type, out Type? jsonType))
+        if (!HandlerMapping.TryGetValue(typeStr, out KeyValuePair<Type, IDataHandler> type))
         {
-            Log.Error($"解析服务器发送信息时失败:发现未知服务器信息类型 {type}");
+            Log.Error($"解析服务器发送信息时失败:发现未知服务器信息类型 {typeStr}");
             return;
         }
 
-        if (!Misc.Misc.IsDerivedFromClass(jsonType, typeof(ServerMessage<>), true))
+        if (!Misc.Misc.IsDerivedFromClass(type.Key, typeof(ServerMessage<>), true))
         {
-            Log.Error($"解析服务器发送信息时失败: {type} 对应的类型是错误的!");
+            Log.Error($"解析服务器发送信息时失败: {typeStr} 对应的类型是错误的!");
             return;
         }
 
-        if (jsonType.IsGenericTypeDefinition)
+        if (type.Key.IsGenericTypeDefinition)
         {
-            Log.Error($"解析服务器发送信息时失败: {type} 对应的类型是没有泛型构造!");
+            Log.Error($"解析服务器发送信息时失败: {typeStr} 对应的类型是没有泛型构造!");
             return;
         }
 
         try
         {
-            object? message = JsonSerializer.Deserialize(json, jsonType, JsonSerializerOptions);
+            object? message = JsonSerializer.Deserialize(json, type.Key, JsonSerializerOptions);
             if (message is null)
             {
                 Log.Error("解析服务器发送信息时失败:Json解析的结果不是期望结果!");
                 return;
             }
 
-            object? data = message.GetType().GetProperty("Data")?.GetValue(message);
-            if (data is null)
-            {
-                Log.Error("解析服务器发送信息时失败:Json解析的结果找不到Data属性!");
-                return;
-            }
-
-            MethodInfo? invokeEventMethod = data.GetType().GetMethod("InvokeRelatedEvent");
-            if (invokeEventMethod is null)
-            {
-                Log.Error("解析服务器发送信息时失败:Json解析的结果找不到可用方法!");
-                return;
-            }
-
-            invokeEventMethod.Invoke(data, null);
+            await type.Value.ProcessDataAsync(message);
         }
         catch (Exception ex)
         {

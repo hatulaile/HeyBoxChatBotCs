@@ -10,7 +10,7 @@ public abstract class CommandHandler
 
     public virtual IEnumerable<ICommandBase> AllCommand => Commands.Values;
 
-    public virtual bool TryGetCommand(string query, out ICommandBase? command)
+    public virtual bool TryGetCommandAsync(string query, out ICommandBase? command)
     {
         if (CommandAliases.TryGetValue(query, out string? str))
         {

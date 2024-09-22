@@ -9,7 +9,7 @@ public class PingCommand : IUserCommand
 {
     public bool Execute(UserCommandArgs args, ICommandSender? sender, out string response)
     {
-        response = $"Hello {User.Get(sender)?.Name ?? "Unknown"}.PONG";
+        response = $"Hello {User.Get(sender)?.Name ?? "Unknown"}.PONG.";
         return true;
     }
 

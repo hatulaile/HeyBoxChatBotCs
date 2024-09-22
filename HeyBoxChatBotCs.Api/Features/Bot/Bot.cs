@@ -20,12 +20,7 @@ public class Bot
 
     public Bot(string id, string token)
     {
-        if (Instance is not null)
-        {
-            //todo 异常待制作
-            throw new Exception("实例已存在,请不要重复新建机器人,如果要多机器人请新开一个应用!");
-        }
-
+        Instance?.CloseAsync();
         Id = id;
         Token = token;
         Instance = this;
@@ -34,9 +29,9 @@ public class Bot
     public string Id { get; private set; }
     public string Token { get; private set; }
 
-    private BotWebSocket? BotWebSocket { get; set; }
+    public BotWebSocket? BotWebSocket { get; private set; }
 
-    public bool IsRunning { get; private set; }
+    private CancellationTokenSource? BotCts { get; set; }
 
     public static event EventHandler? BotStart;
 
@@ -45,41 +40,53 @@ public class Bot
     /// <summary>
     /// 开启Bot 此方法会阻塞程序!
     /// </summary>
-    public void Start()
+    public async Task StartAsync()
     {
+        if (BotCts is not null)
+        {
+            Log.Error("请不要重复启动机器人!");
+            return;
+        }
+
         BotWebSocket ??= new BotWebSocket(this);
-        BotWebSocket.Start();
-        new Loader.Loader().Run();
-        IsRunning = true;
+        await BotWebSocket.Start();
+        await new Loader.Loader().Run();
+        BotCts = new CancellationTokenSource();
         BotStart?.Invoke(this);
         Log.Info("控制台命令已启用,可以输入!");
-        new Thread(ConsoleCommandProcessor.Run)
+        _ = ConsoleCommandProcessor.Run();
+        try
         {
-            IsBackground = true,
-            Name = "Console ReadLine Thread"
-        }.Start();
-        while (IsRunning)
+            await Task.Delay(Timeout.Infinite, BotCts.Token);
+        }
+        catch (TaskCanceledException)
         {
-            Thread.Sleep(1000);
+            Log.Debug($"{Id}已被终止!");
+        }
+        catch (Exception e)
+        {
+            Log.Error(e);
         }
     }
 
-    public void Close()
+    public Task CloseAsync()
     {
-        if (!IsRunning || BotWebSocket is null)
+        if (BotCts is null || BotWebSocket is null || BotCts.IsCancellationRequested)
         {
             Log.Warn("你还未启用Bot,无法关闭!");
         }
 
+        Log.Info($"{Id} 正在关闭!");
         ConsoleCommandProcessor.ConsoleReadCts?.Cancel();
+        BotCts?.Cancel();
+        BotCts?.Dispose();
+        BotCts = null;
         BotClose?.Invoke(this);
-        IsRunning = false;
         BotWebSocket?.Dispose();
-        Log.Info("已关闭Bot,即将退出程序!");
-        Misc.Misc.Exit();
+        return Task.CompletedTask;
     }
 
-    protected async Task<HttpResponseMessageValue<T?>?> BotSendAction<T>(object body, BotAction action,
+    protected async Task<HttpResponseMessageValue<T?>?> BotSendActionAsync<T>(object body, BotAction action,
         string contentType = "application/json")
     {
         if (!BotRequestUrl.TryGetUri(action, out Uri? uri))
@@ -90,13 +97,13 @@ public class Bot
 
         string json = JsonSerializer.Serialize(body, BotActionJsonSerializerOptions);
         Log.Debug("BOT动作的JSON为:" + json);
-        return await HttpRequest.Post<T>(uri!, new RawBody(json, contentType), new Dictionary<string, string>
+        return await HttpRequest.Post<T>(uri, new RawBody(json, contentType), new Dictionary<string, string>
         {
             { "token", Token }
         });
     }
 
-    protected async Task<HttpResponseMessageValue<T?>?> BotSendAction<T>(FormDataBody body, BotAction action)
+    protected async Task<HttpResponseMessageValue<T?>?> BotSendActionAsync<T>(FormDataBody body, BotAction action)
     {
         if (!BotRequestUrl.TryGetUri(action, out Uri? uri))
         {
@@ -104,15 +111,15 @@ public class Bot
             return default;
         }
 
-        return await HttpRequest.Post<T>(uri!, body, new Dictionary<string, string>
+        return await HttpRequest.Post<T>(uri, body, new Dictionary<string, string>
         {
             { "token", Token }
         });
     }
 
-    public void SendMessage(MessageBase message)
+    public async Task SendMessageAsync(MessageBase message)
     {
-        if (!IsRunning)
+        if (BotCts is null || BotCts.IsCancellationRequested)
         {
             Log.Warn("Bot 暂未启动,请启动后在使用此功能!");
             return;
@@ -121,8 +128,7 @@ public class Bot
         try
         {
             HttpResponseMessageValue<BotActionResult<SendMessageResult>?>? result =
-                BotSendAction<BotActionResult<SendMessageResult>>(message, BotAction.SendMessage)
-                    .Result;
+                await BotSendActionAsync<BotActionResult<SendMessageResult>>(message, BotAction.SendMessage);
             if (result?.Value is null)
             {
                 Log.Error("发送信息后返回的数据为空!");
@@ -144,27 +150,33 @@ public class Bot
         }
     }
 
-    public void Upload(FileInfo file, string fileName = "")
+    public async Task<Uri?> UploadAsync(FileInfo file, string fileName = "")
     {
-        Upload(file.FullName, fileName);
+        return await UploadAsync(file.FullName, fileName);
     }
 
-    public Uri? Upload(string filePath, string fileName = "")
+    public async Task<Uri?> UploadAsync(string filePath, string fileName = "")
     {
+        if (BotCts is null || BotCts.IsCancellationRequested)
+        {
+            Log.Warn("Bot 暂未启动,请启动后在使用此功能!");
+            return null;
+        }
+
         try
         {
             HttpResponseMessageValue<BotActionResult<UploadResult>?>? result;
             if (!string.IsNullOrEmpty(fileName))
             {
-                result = BotSendAction<BotActionResult<UploadResult>>(
+                result = await BotSendActionAsync<BotActionResult<UploadResult>>(
                     new FormDataBody(new FormDataBodyFile("file", filePath, fileName)),
-                    BotAction.Upload).Result;
+                    BotAction.Upload);
             }
             else
             {
-                result = BotSendAction<BotActionResult<UploadResult>>(
+                result = await BotSendActionAsync<BotActionResult<UploadResult>>(
                     new FormDataBody(new FormDataBodyFile("file", filePath)),
-                    BotAction.Upload).Result;
+                    BotAction.Upload);
             }
 
             if (result is null)

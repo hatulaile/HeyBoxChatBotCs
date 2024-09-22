@@ -1,4 +1,4 @@
-﻿using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageDatas;
+﻿using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageData;
 
 namespace HeyBoxChatBotCs.Api;
 

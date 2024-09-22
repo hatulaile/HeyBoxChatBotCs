@@ -11,8 +11,8 @@ public class StopServerCommand : IConsoleCommand
 
     public bool Execute(ArraySegment<string> args, out string response)
     {
-        int code = 0;
 #if DEBUG
+        int code = 0;
         if (args.Count != 0 && int.TryParse(args.ElementAt(0), out code))
         {
         }
@@ -21,7 +21,7 @@ public class StopServerCommand : IConsoleCommand
         response = string.Empty;
         return true;
 #endif
-        Bot.Instance.Close();
+        Bot.Instance?.CloseAsync();
         response = "正在停止程序运行!";
         return true;
     }

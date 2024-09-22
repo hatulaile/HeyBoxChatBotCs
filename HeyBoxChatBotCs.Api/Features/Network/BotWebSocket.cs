@@ -32,7 +32,7 @@ public class BotWebSocket : IDisposable
 
     public ClientWebSocket? WebSocket { get; private set; }
 
-    public void Start()
+    public async Task Start()
     {
         if (WebSocket?.State is WebSocketState.Open)
         {
@@ -42,6 +42,8 @@ public class BotWebSocket : IDisposable
 
         try
         {
+            Dispose();
+
             IsRunning = true;
 
             WebSocketCts = new CancellationTokenSource();
@@ -50,24 +52,16 @@ public class BotWebSocket : IDisposable
 
             WebSocket.Options.SetRequestHeader("token", Bot.Token);
 
-            WebSocket.ConnectAsync(
-                    BotRequestUrl.GetUri(BotAction.Connect)!,
-                    CancellationToken.None)
-                .Wait();
+            await WebSocket.ConnectAsync(
+                BotRequestUrl.GetUri(BotAction.Connect)!,
+                CancellationToken.None);
 
-            new Thread(ReceiveServerMessage)
-            {
-                IsBackground = true,
-                Name = "Websocket Receive Message"
-            }.Start(WebSocketCts);
 
-            ReceiveMessage += ServerMessageHandler.System.ServerMessageHandler.ProcessMessage;
+            _ = ReceiveServerMessage();
 
-            new Thread(Ack)
-            {
-                IsBackground = true,
-                Name = "Ack keep Thread",
-            }.Start(WebSocketCts);
+            ReceiveMessage += ServerMessageHandler.System.ServerMessageHandler.ProcessMessageAsync;
+
+            _ = Ack();
         }
         catch (Exception e)
         {
@@ -82,21 +76,13 @@ public class BotWebSocket : IDisposable
 
     public event ReceiveMessage? ReceiveMessage;
 
-    protected void ReceiveServerMessage(object? ctsObject)
+    protected async Task ReceiveServerMessage()
     {
-        if (ctsObject is not CancellationTokenSource cts)
-        {
-            Log.Error("ReceiveMessage方法传值错误,程序中断!!!!");
-            //todo 退出值带重设
-            Misc.Misc.Exit(25000);
-            return;
-        }
-
         byte[] buffer = new byte[MAX_BUFFER_SIZE];
         StringBuilder sb = new StringBuilder();
         while (true)
         {
-            if (cts.IsCancellationRequested || WebSocket is null)
+            if (WebSocketCts is null || WebSocketCts.IsCancellationRequested || WebSocket is null)
             {
                 Log.Debug("已取消接收信息进程!");
                 return;
@@ -106,7 +92,8 @@ public class BotWebSocket : IDisposable
             {
                 while (true)
                 {
-                    var ret = WebSocket.ReceiveAsync(buffer, WebSocketCts?.Token ?? default).Result;
+                    WebSocketReceiveResult ret =
+                        await WebSocket.ReceiveAsync(buffer, WebSocketCts.Token).ConfigureAwait(false);
                     sb.Append(Encoding.UTF8.GetString(buffer, 0, ret.Count));
                     if (ret.EndOfMessage)
                     {
@@ -133,7 +120,7 @@ public class BotWebSocket : IDisposable
                     break;
                 }
 
-                if (!cts.IsCancellationRequested)
+                if (!WebSocketCts.IsCancellationRequested)
                 {
                     Log.Debug("主动退出Websocket链接");
                     return;
@@ -142,7 +129,7 @@ public class BotWebSocket : IDisposable
                 Log.Error(objectDisposedException);
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
                 Dispose();
-                Start();
+                _ = Start();
             }
             catch (Exception exception)
             {
@@ -154,28 +141,20 @@ public class BotWebSocket : IDisposable
                 Log.Error(exception);
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
                 Dispose();
-                Start();
+                _ = Start();
             }
         }
     }
 
     protected readonly ArraySegment<byte> AckSendMessage = "PING"u8.ToArray();
 
-    protected void Ack(object? ctsObject)
+    protected async Task Ack()
     {
-        if (ctsObject is not CancellationTokenSource cts)
-        {
-            Log.Error("Ack方法传值错误,程序中断!!!!");
-            //todo 退出值带重设
-            Misc.Misc.Exit(25000);
-            return;
-        }
-
         Thread.Sleep(ACK_SLEEP_TIME);
 
         while (true)
         {
-            if (cts.IsCancellationRequested)
+            if (WebSocketCts is null || WebSocketCts.IsCancellationRequested)
             {
                 Log.Debug("已取消心跳进程!");
                 break;
@@ -184,28 +163,29 @@ public class BotWebSocket : IDisposable
             if (WebSocket?.State is WebSocketState.Open)
             {
                 Log.Debug("机器人正在发送心跳!");
-                WebSocket.SendAsync(AckSendMessage, WebSocketMessageType.Text, true, default).Wait();
+                await WebSocket.SendAsync(AckSendMessage, WebSocketMessageType.Text, true, WebSocketCts.Token)
+                    .ConfigureAwait(false);
             }
             else
             {
-                if (!IsRunning || cts.IsCancellationRequested)
+                if (!IsRunning || WebSocketCts.IsCancellationRequested)
                 {
                     break;
                 }
 
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
-                cts.Cancel();
-                Start();
+                await WebSocketCts.CancelAsync();
+                _ = Start();
             }
 
-            Thread.Sleep(ACK_SLEEP_TIME);
+            await Task.Delay(ACK_SLEEP_TIME);
         }
     }
 
     public void Dispose()
     {
         IsRunning = false;
-        ReceiveMessage -= ServerMessageHandler.System.ServerMessageHandler.ProcessMessage;
+        ReceiveMessage -= ServerMessageHandler.System.ServerMessageHandler.ProcessMessageAsync;
         WebSocketCts?.Cancel();
         WebSocket?.Dispose();
         WebSocketCts?.Dispose();

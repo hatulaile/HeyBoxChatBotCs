@@ -1,8 +1,6 @@
 namespace HeyBoxChatBotCs.Api.Features;
 
-public delegate void CustomEventHandler();
-
-public delegate void CustomAsycnEventHandler();
+public delegate Task CustomAsyncEventHandler();
 
 public class Event
 {
@@ -11,73 +9,50 @@ public class Event
         EventsValue.Add(this);
     }
 
-    private event CustomEventHandler? InnerEvent;
-    private event CustomAsycnEventHandler? InnerAsyncEvent;
+    private event CustomAsyncEventHandler? InnerAsyncEvent;
     private static readonly List<Event> EventsValue = [];
     public static IReadOnlyList<Event> List => EventsValue;
 
-    public void Subscribe(CustomEventHandler customEventHandler)
+    public void Subscribe(CustomAsyncEventHandler customEventHandler)
     {
-        InnerEvent += customEventHandler;
+        InnerAsyncEvent += customEventHandler;
     }
 
-    public void UnSubscribe(CustomEventHandler customEventHandler)
+    public void UnSubscribe(CustomAsyncEventHandler customEventHandler)
     {
-        InnerEvent -= customEventHandler;
+        InnerAsyncEvent -= customEventHandler;
     }
 
-    public static Event operator +(Event e, CustomEventHandler customEventHandler)
+    public static Event operator +(Event e, CustomAsyncEventHandler customEventHandler)
     {
         e.Subscribe(customEventHandler);
         return e;
     }
 
-    public static Event operator -(Event e, CustomEventHandler customEventHandler)
+    public static Event operator -(Event e, CustomAsyncEventHandler customEventHandler)
     {
         e.UnSubscribe(customEventHandler);
         return e;
     }
 
-    public void Invoke()
-    {
-        InvokeNormal();
-        InvokeAsync();
-    }
 
-    internal void InvokeNormal()
-    {
-        if (InnerEvent is null)
-        {
-            return;
-        }
-
-        foreach (CustomEventHandler handler in InnerEvent.GetInvocationList()
-                     .Cast<CustomEventHandler>())
-        {
-            try
-            {
-                handler();
-            }
-            catch (Exception exception)
-            {
-                Log.Error("触发事件遇到错误:" + exception);
-            }
-        }
-    }
-
-    internal void InvokeAsync()
+    internal async Task InvokeAsync()
     {
         if (InnerAsyncEvent is null)
         {
             return;
         }
 
-        foreach (CustomAsycnEventHandler handler in InnerAsyncEvent.GetInvocationList()
-                     .Cast<CustomAsycnEventHandler>())
+        foreach (CustomAsyncEventHandler handler in InnerAsyncEvent.GetInvocationList()
+                     .Cast<CustomAsyncEventHandler>())
         {
             try
             {
-                Task.Run(() => handler());
+                await handler().WaitAsync(TimeSpan.FromSeconds(10d));
+            }
+            catch (TimeoutException timeoutException)
+            {
+                Log.Error($"异步事件超时:" + timeoutException);
             }
             catch (Exception exception)
             {

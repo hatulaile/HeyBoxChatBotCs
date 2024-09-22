@@ -8,6 +8,11 @@ namespace HeyBoxChatBotCs.Api.Features
 
         public int Compare(IPlugin<IConfig>? x, IPlugin<IConfig>? y)
         {
+            if (x is null || y is null)
+            {
+                return 0;
+            }
+
             int value = y.Priority.CompareTo(x.Priority);
             if (value == 0)
                 value = x.GetHashCode().CompareTo(y.GetHashCode());

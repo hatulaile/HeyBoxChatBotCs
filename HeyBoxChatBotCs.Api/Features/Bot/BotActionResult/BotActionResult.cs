@@ -4,7 +4,7 @@
 
 namespace HeyBoxChatBotCs.Api.Features.Bot.BotActionResult;
 
-public class BotActionResult<TResult> where TResult : new()
+public class BotActionResult<TResult>
 {
     [JsonPropertyName("msg")] public string Message { get; init; }
     [JsonPropertyName("result")] public TResult Result { get; init; }

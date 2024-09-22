@@ -5,7 +5,7 @@ namespace HeyBoxChatBotCs.Api.Extensions;
 
 public static class ReflectionExtensions
 {
-    public static void CopyProperties(this object target, IReadOnlyDictionary<string, object?> source)
+    public static Task CopyPropertiesAsync(this object target, IReadOnlyDictionary<string, object?> source)
     {
         Type type = target.GetType();
         foreach (PropertyInfo info in type.GetProperties())
@@ -19,6 +19,8 @@ public static class ReflectionExtensions
 
             info.SetValue(target, t);
         }
+
+        return Task.CompletedTask;
     }
 
     public static Dictionary<string, object?> PropertiesToDictionary(this object o)

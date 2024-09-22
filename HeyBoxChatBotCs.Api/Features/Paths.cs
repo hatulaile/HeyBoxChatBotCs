@@ -1,4 +1,3 @@
-using System.Text;
 using HeyBoxChatBotCs.Api.Interfaces;
 
 namespace HeyBoxChatBotCs.Api.Features;
@@ -7,10 +6,10 @@ public static class Paths
 {
     static Paths() => Reload();
 
-    public static string RootPath { get; set; }
-    public static string ConfigPath { get; set; }
-    public static string PluginPath { get; set; }
-    public static string DependenciesPath { get; set; }
+    public static string RootPath { get; set; } = null!;
+    public static string ConfigPath { get; set; } = null!;
+    public static string PluginPath { get; set; } = null!;
+    public static string DependenciesPath { get; set; } = null!;
 
     public static void Reload()
     {
@@ -44,7 +43,6 @@ public static class Paths
 
     public static string ClearInvalidChars(Span<char> fileName, char newChar = '_')
     {
-        StringBuilder sb = new StringBuilder();
         var invalidChars = Path.GetInvalidFileNameChars();
         if (invalidChars.Contains(newChar))
         {

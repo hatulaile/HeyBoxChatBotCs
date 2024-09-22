@@ -15,13 +15,13 @@ public static class ConfigManager
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
     };
 
-    public static void Reload()
+    public static async Task Reload()
     {
-        Load(Read());
-        Save();
+        await LoadAsync(await ReadAsync());
+        await SaveAsync();
     }
 
-    private static void Save()
+    private static Task SaveAsync()
     {
         foreach (IPlugin<IConfig> plugin in Loader.Plugins)
         {
@@ -29,17 +29,19 @@ public static class ConfigManager
             File.WriteAllText(configPath,
                 JsonSerializer.Serialize(plugin.Config, plugin.Config.GetType(), ConfigJsonSerializerOptions));
         }
+
+        return Task.CompletedTask;
     }
 
-    private static void Load(List<Dictionary<string, object?>> configs)
+    private static async Task LoadAsync(List<Dictionary<string, object?>> configs)
     {
         for (int i = 0; i < Loader.Plugins.Count; i++)
         {
-            Loader.Plugins.ElementAt(i).Config.CopyProperties(configs[i]);
+            await Loader.Plugins.ElementAt(i).Config.CopyPropertiesAsync(configs[i]);
         }
     }
 
-    private static List<Dictionary<string, object?>> Read()
+    private static async Task<List<Dictionary<string, object?>>> ReadAsync()
     {
         List<Dictionary<string, object?>> pluginConfig = new(5);
         foreach (IPlugin<IConfig> plugin in Loader.Plugins)
@@ -54,7 +56,8 @@ public static class ConfigManager
             {
                 try
                 {
-                    pluginConfig.Add(JsonSerializer.Deserialize(File.ReadAllText(configPath), plugin.Config.GetType(),
+                    pluginConfig.Add(JsonSerializer.Deserialize(await File.ReadAllTextAsync(configPath),
+                            plugin.Config.GetType(),
                             ConfigJsonSerializerOptions)!
                         .PropertiesToDictionary());
                 }
@@ -62,7 +65,7 @@ public static class ConfigManager
                 {
                     Log.Error(e);
                     Log.Error("由于解析错误,将源文件备份到配置文件夹里!");
-                    File.WriteAllText(configPath + ".old", File.ReadAllText(configPath));
+                    await File.WriteAllTextAsync(configPath + ".old", await File.ReadAllTextAsync(configPath));
                     pluginConfig.Add(plugin.Config.PropertiesToDictionary());
                 }
             }

@@ -34,13 +34,9 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
     {
         {
             typeof(ConsoleCommandHandler), new Dictionary<Type, ICommandBase>()
-            {
-            }
         },
         {
             typeof(UserCommandHandler), new Dictionary<Type, ICommandBase>()
-            {
-            }
         }
     };
 

@@ -9,9 +9,7 @@ public delegate void SendingNetworkRequest();
 
 public static class HttpRequest
 {
-    public static JsonSerializerOptions HttpRequestJsonSerializerOptions { get; } = new()
-    {
-    };
+    public static JsonSerializerOptions HttpRequestJsonSerializerOptions { get; } = new();
 
     public static event SendingNetworkRequest? OnSendingNetworkRequest;
 

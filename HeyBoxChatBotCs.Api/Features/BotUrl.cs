@@ -1,4 +1,6 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Frozen;
+using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using HeyBoxChatBotCs.Api.Enums;
 using HeyBoxChatBotCs.Api.Misc;
@@ -7,40 +9,41 @@ namespace HeyBoxChatBotCs.Api.Features;
 
 public static class BotRequestUrl
 {
-    private static Dictionary<BotAction, RequestUri> BotActionToUri { get; } = new()
-    {
+    private static FrozenDictionary<BotAction, RequestUri> BotActionToUri { get; } =
+        new Dictionary<BotAction, RequestUri>()
         {
-            BotAction.Connect, new RequestUri("wss://chat.xiaoheihe.cn/", "/chatroom/ws/connect",
-                new NameValueCollection
-                {
-                    { "chat_os_type", "bot" },
-                    { "client_type", "heybox_chat" },
-                    { "chat_version", "1.27.2" }
-                })
-        },
-        {
-            BotAction.SendMessage, new RequestUri("https://chat.xiaoheihe.cn/", "/chatroom/v2/channel_msg/send",
-                new NameValueCollection
-                {
-                    { "chat_os_type", "bot" },
-                    { "client_type", "heybox_chat" },
-                    { "chat_version", "1.27.2" }
-                })
-        },
-        {
-            BotAction.Upload,
-            new RequestUri("https://chat-upload.xiaoheihe.cn/", "/upload", new NameValueCollection()
             {
-                { "chat_os_type", "bot" },
-                { "client_type", "heybox_chat" },
-                { "chat_version", "1.27.2" }
-            })
-        }
-    };
+                BotAction.Connect, new RequestUri("wss://chat.xiaoheihe.cn/", "/chatroom/ws/connect",
+                    new NameValueCollection
+                    {
+                        { "chat_os_type", "bot" },
+                        { "client_type", "heybox_chat" },
+                        { "chat_version", "1.27.2" }
+                    })
+            },
+            {
+                BotAction.SendMessage, new RequestUri("https://chat.xiaoheihe.cn/", "/chatroom/v2/channel_msg/send",
+                    new NameValueCollection
+                    {
+                        { "chat_os_type", "bot" },
+                        { "client_type", "heybox_chat" },
+                        { "chat_version", "1.27.2" }
+                    })
+            },
+            {
+                BotAction.Upload,
+                new RequestUri("https://chat-upload.xiaoheihe.cn/", "/upload", new NameValueCollection()
+                {
+                    { "chat_os_type", "bot" },
+                    { "client_type", "heybox_chat" },
+                    { "chat_version", "1.27.2" }
+                })
+            }
+        }.ToFrozenDictionary();
 
     public static IReadOnlyDictionary<BotAction, RequestUri> UriDictionary => BotActionToUri;
 
-    public static bool TryGetUri(BotAction action, out Uri? uri)
+    public static bool TryGetUri(BotAction action, [NotNullWhen(true)] out Uri? uri)
     {
         uri = null;
         if (!BotActionToUri.TryGetValue(action, out RequestUri? requestUri))

@@ -6,15 +6,7 @@ public class CommandException : Exception
 {
     public CommandException(string? message = null, string? command = null)
     {
-        if (string.IsNullOrWhiteSpace(message))
-        {
-            message = "命令异常";
-        }
-        else
-        {
-            MessageStr = message;
-        }
-
+        MessageStr = string.IsNullOrWhiteSpace(message) ? "命令异常" : message;
         Command = command;
     }
 

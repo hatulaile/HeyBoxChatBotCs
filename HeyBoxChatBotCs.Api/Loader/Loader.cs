@@ -25,35 +25,35 @@ public class Loader
     private static Assembly? OnAssemblyResolve(object? sender, ResolveEventArgs args) =>
         LoadedAssembly.FirstOrDefault(assembly => assembly.FullName == args.Name);
 
-    public void Run()
+    public async Task Run()
     {
-        LoadDependencies();
-        LoadPlugins();
+        await LoadDependencies();
+        await LoadPlugins();
         ConfigManager.Reload();
-        EnablePlugins();
+        await EnablePlugins();
     }
 
-    public static Assembly? LoadAssembly(string path)
+    public static Task<Assembly?> LoadAssembly(string path)
     {
         try
         {
             Assembly assembly = Assembly.LoadFile(path);
-            return assembly;
+            return Task.FromResult(assembly)!;
         }
         catch (Exception exception)
         {
             Log.Error($"在加载 {path} 程序集时出错! {exception}");
         }
 
-        return null;
+        return Task.FromResult<Assembly?>(null);
     }
 
-    public static void LoadPlugins()
+    public static async Task LoadPlugins()
     {
         Log.Info("开始加载插件~");
         foreach (string filePath in Directory.GetFiles(Paths.PluginPath, "*.dll"))
         {
-            Assembly? assembly = LoadAssembly(filePath);
+            Assembly? assembly = await LoadAssembly(filePath);
             if (assembly is null)
             {
                 continue;
@@ -64,7 +64,7 @@ public class Loader
 
         foreach (Assembly assembly in LoadedAssembly.Where(x => !Dependencies.Contains(x)))
         {
-            IPlugin<IConfig>? plugin = CreatePlugin(assembly);
+            IPlugin<IConfig>? plugin = await CreatePlugin(assembly);
             if (plugin is null)
                 continue;
             AssemblyInformationalVersionAttribute? attribute =
@@ -78,7 +78,7 @@ public class Loader
         Log.Info("插件加载完毕~");
     }
 
-    public static IPlugin<IConfig>? CreatePlugin(Assembly assembly)
+    public static Task<IPlugin<IConfig>?> CreatePlugin(Assembly assembly)
     {
         try
         {
@@ -124,12 +124,13 @@ public class Loader
                 }
 
                 Log.Debug($"{type.FullName} 已经实例化完成!");
-                return plugin;
+                return Task.FromResult(plugin)!;
             }
         }
         catch (ReflectionTypeLoadException reflectionTypeLoadException)
         {
-            Log.Error($"初始化插件时遇到错误 {assembly.GetName().Name} (at {assembly.Location})! {reflectionTypeLoadException}");
+            Log.Error(
+                $"初始化插件时遇到错误 {assembly.GetName().Name} (at {assembly.Location})! {reflectionTypeLoadException}");
 
             foreach (Exception? loaderException in reflectionTypeLoadException.LoaderExceptions)
             {
@@ -146,18 +147,18 @@ public class Loader
             Log.Error($"初始化插件时遇到错误 {assembly.GetName().Name} (at {assembly.Location})! {exception}");
         }
 
-        return null;
+        return Task.FromResult<IPlugin<IConfig>?>(null);
     }
 
 
-    public static void LoadDependencies()
+    public static async Task LoadDependencies()
     {
         try
         {
             Log.Info($"加载位于 {Paths.DependenciesPath} 的依赖程序集!");
             foreach (string filePath in Directory.GetFiles(Paths.DependenciesPath, "*.dll"))
             {
-                Assembly? assembly = LoadAssembly(filePath);
+                Assembly? assembly = await LoadAssembly(filePath);
                 if (assembly is null)
                 {
                     continue;
@@ -177,7 +178,7 @@ public class Loader
     }
 
 
-    public static void DisablePlugins()
+    public static Task DisablePlugins()
     {
         foreach (IPlugin<IConfig> plugin in Plugins)
         {
@@ -192,9 +193,11 @@ public class Loader
                 Log.Error("禁用插件时遇到错误:" + ex);
             }
         }
+
+        return Task.CompletedTask;
     }
 
-    public static void ReloadPlugins()
+    public static async Task ReloadPlugins()
     {
         foreach (IPlugin<IConfig> plugin in Plugins)
         {
@@ -208,15 +211,15 @@ public class Loader
             }
         }
 
-        DisablePlugins();
+        await DisablePlugins();
         Plugins.Clear();
         Locations.Clear();
-        LoadPlugins();
+        await LoadPlugins();
         ConfigManager.Reload();
-        EnablePlugins();
+        await EnablePlugins();
     }
 
-    public static void EnablePlugins()
+    public static Task EnablePlugins()
     {
         List<IPlugin<IConfig>> toLoad = Plugins.ToList();
         foreach (IPlugin<IConfig> plugin in toLoad.Where(p => p.Name.StartsWith("HeyBoxBotCs") && p.Config.IsEnabled)
@@ -251,5 +254,7 @@ public class Loader
                 Log.DebugEnabled.Add(plugin.Assembly);
             }
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -1,12 +1,9 @@
 namespace HeyBoxChatBotCs.Api.Features;
 
-public delegate void CustomEventHandler<in TEventArgs>(TEventArgs args);
-
-public delegate void CustomAsyncEventHandler<in TEventArgs>(TEventArgs args);
+public delegate Task CustomAsyncEventHandler<in TEventArgs>(TEventArgs args);
 
 public class Event<TEventArgs>
 {
-    private event CustomEventHandler<TEventArgs>? InnerEvent;
     private event CustomAsyncEventHandler<TEventArgs>? InnerAsyncEvent;
 
     public Event()
@@ -17,56 +14,31 @@ public class Event<TEventArgs>
     private static readonly Dictionary<Type, Event<TEventArgs>> TypeToEvent = new();
     public static IReadOnlyDictionary<Type, Event<TEventArgs>> Dictionary => TypeToEvent;
 
-    public void Subscribe(CustomEventHandler<TEventArgs> customEventHandler)
+    public void Subscribe(CustomAsyncEventHandler<TEventArgs> customEventHandler)
     {
-        InnerEvent += customEventHandler;
+        InnerAsyncEvent += customEventHandler;
     }
 
-    public void UnSubscribe(CustomEventHandler<TEventArgs> customEventHandler)
+    public void UnSubscribe(CustomAsyncEventHandler<TEventArgs> customEventHandler)
     {
-        InnerEvent -= customEventHandler;
+        InnerAsyncEvent -= customEventHandler;
     }
 
-    public static Event<TEventArgs> operator +(Event<TEventArgs> e, CustomEventHandler<TEventArgs> customEventHandler)
+    public static Event<TEventArgs> operator +(Event<TEventArgs> e,
+        CustomAsyncEventHandler<TEventArgs> customEventHandler)
     {
         e.Subscribe(customEventHandler);
         return e;
     }
 
-    public static Event<TEventArgs> operator -(Event<TEventArgs> e, CustomEventHandler<TEventArgs> customEventHandler)
+    public static Event<TEventArgs> operator -(Event<TEventArgs> e,
+        CustomAsyncEventHandler<TEventArgs> customEventHandler)
     {
         e.UnSubscribe(customEventHandler);
         return e;
     }
 
-    public void Invoke(TEventArgs args)
-    {
-        InvokeNormal(args);
-        InvokeAsync(args);
-    }
-
-    internal void InvokeNormal(TEventArgs args)
-    {
-        if (InnerEvent is null)
-        {
-            return;
-        }
-
-        foreach (CustomEventHandler<TEventArgs> handler in InnerEvent.GetInvocationList()
-                     .Cast<CustomEventHandler<TEventArgs>>())
-        {
-            try
-            {
-                handler(args);
-            }
-            catch (Exception exception)
-            {
-                Log.Error("触发事件遇到错误:" + exception);
-            }
-        }
-    }
-
-    internal void InvokeAsync(TEventArgs args)
+    public async Task InvokeAsync(TEventArgs args)
     {
         if (InnerAsyncEvent is null)
         {
@@ -78,7 +50,7 @@ public class Event<TEventArgs>
         {
             try
             {
-                Task.Run(() => handler(args));
+                await handler(args);
             }
             catch (Exception exception)
             {

@@ -1,6 +1,6 @@
 ﻿using HeyBoxChatBotCs.Api.EventArgs.Interfaces;
 using HeyBoxChatBotCs.Api.Features;
-using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageDatas;
+using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageData;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.System;
 
 namespace HeyBoxChatBotCs.Api.EventArgs.User;
