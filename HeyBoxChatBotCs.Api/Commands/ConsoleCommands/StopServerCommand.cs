@@ -20,9 +20,10 @@ public class StopServerCommand : IConsoleCommand
         Misc.Misc.Exit(code);
         response = string.Empty;
         return true;
-#endif
+#else
         Bot.Instance?.CloseAsync();
         response = "正在停止程序运行!";
         return true;
+#endif
     }
 }

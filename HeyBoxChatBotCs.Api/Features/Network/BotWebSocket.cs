@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 using HeyBoxChatBotCs.Api.Enums;
@@ -23,8 +24,6 @@ public class BotWebSocket : IDisposable
         Bot = bot;
     }
 
-    public bool IsRunning { get; private set; }
-
     private Bot.Bot Bot { get; }
 
 
@@ -42,24 +41,28 @@ public class BotWebSocket : IDisposable
 
         try
         {
-            Dispose();
-
-            IsRunning = true;
+            if (WebSocketCts is { IsCancellationRequested: false })
+            {
+                await WebSocketCts.CancelAsync();
+                WebSocketCts?.Dispose();
+            }
 
             WebSocketCts = new CancellationTokenSource();
 
-            WebSocket = new ClientWebSocket();
-
-            WebSocket.Options.SetRequestHeader("token", Bot.Token);
+            if (WebSocket is null)
+            {
+                WebSocket = new ClientWebSocket();
+                WebSocket.Options.SetRequestHeader("token", Bot.Token);
+            }
 
             await WebSocket.ConnectAsync(
                 BotRequestUrl.GetUri(BotAction.Connect)!,
-                CancellationToken.None);
-
+                WebSocketCts.Token);
 
             _ = ReceiveServerMessage();
 
             ReceiveMessage += ServerMessageHandler.System.ServerMessageHandler.ProcessMessageAsync;
+
 
             _ = Ack();
         }
@@ -113,35 +116,24 @@ public class BotWebSocket : IDisposable
 
                 sb.Clear();
             }
-            catch (ObjectDisposedException objectDisposedException)
+            catch (TaskCanceledException)
             {
-                if (!IsRunning)
-                {
-                    break;
-                }
-
-                if (!WebSocketCts.IsCancellationRequested)
-                {
-                    Log.Debug("主动退出Websocket链接");
-                    return;
-                }
-
-                Log.Error(objectDisposedException);
+                Log.Debug("接收信息被取消!");
+                return;
+            }
+            catch (SocketException socketException)
+            {
+                Log.Error(socketException);
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
-                Dispose();
                 _ = Start();
+                return;
             }
             catch (Exception exception)
             {
-                if (!IsRunning)
-                {
-                    break;
-                }
-
                 Log.Error(exception);
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
-                Dispose();
                 _ = Start();
+                return;
             }
         }
     }
@@ -150,7 +142,7 @@ public class BotWebSocket : IDisposable
 
     protected async Task Ack()
     {
-        Thread.Sleep(ACK_SLEEP_TIME);
+        await Task.Delay(ACK_SLEEP_TIME);
 
         while (true)
         {
@@ -168,14 +160,14 @@ public class BotWebSocket : IDisposable
             }
             else
             {
-                if (!IsRunning || WebSocketCts.IsCancellationRequested)
+                if (WebSocketCts.IsCancellationRequested)
                 {
                     break;
                 }
 
                 Log.Error($"机器人意外中断链接!正在尝试重新链接~ Info:{WebSocket?.CloseStatus ?? WebSocketCloseStatus.Empty}");
-                await WebSocketCts.CancelAsync();
                 _ = Start();
+                return;
             }
 
             await Task.Delay(ACK_SLEEP_TIME);
@@ -184,10 +176,9 @@ public class BotWebSocket : IDisposable
 
     public void Dispose()
     {
-        IsRunning = false;
         ReceiveMessage -= ServerMessageHandler.System.ServerMessageHandler.ProcessMessageAsync;
         WebSocketCts?.Cancel();
-        WebSocket?.Dispose();
         WebSocketCts?.Dispose();
+        WebSocket?.Dispose();
     }
 }

@@ -42,7 +42,7 @@ public class Bot
     /// </summary>
     public async Task StartAsync()
     {
-        if (BotCts is not null)
+        if (BotCts is not null or { IsCancellationRequested: false })
         {
             Log.Error("请不要重复启动机器人!");
             return;
@@ -58,6 +58,10 @@ public class Bot
         try
         {
             await Task.Delay(Timeout.Infinite, BotCts.Token);
+        }
+        catch (ObjectDisposedException)
+        {
+            Log.Debug($"{Id}已被终止!");
         }
         catch (TaskCanceledException)
         {
@@ -80,7 +84,6 @@ public class Bot
         ConsoleCommandProcessor.ConsoleReadCts?.Cancel();
         BotCts?.Cancel();
         BotCts?.Dispose();
-        BotCts = null;
         BotClose?.Invoke(this);
         BotWebSocket?.Dispose();
         return Task.CompletedTask;

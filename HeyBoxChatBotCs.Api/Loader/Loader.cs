@@ -29,7 +29,7 @@ public class Loader
     {
         await LoadDependencies();
         await LoadPlugins();
-        ConfigManager.Reload();
+        await ConfigManager.Reload();
         await EnablePlugins();
     }
 
@@ -215,7 +215,7 @@ public class Loader
         Plugins.Clear();
         Locations.Clear();
         await LoadPlugins();
-        ConfigManager.Reload();
+        await ConfigManager.Reload();
         await EnablePlugins();
     }
 
