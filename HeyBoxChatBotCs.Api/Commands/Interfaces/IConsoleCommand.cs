@@ -2,5 +2,5 @@
 
 public interface IConsoleCommand : ICommandBase
 {
-    public bool Execute(ArraySegment<string> args, out string response);
+    public Task<string> Execute(ArraySegment<string> args);
 }

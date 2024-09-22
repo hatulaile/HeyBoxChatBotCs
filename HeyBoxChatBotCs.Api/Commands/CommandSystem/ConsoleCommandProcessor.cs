@@ -7,12 +7,18 @@ public static class ConsoleCommandProcessor
 {
     public static readonly ConsoleCommandHandler ConsoleCommandHandler = ConsoleCommandHandler.Create();
 
-    public static event ReceiveMessage ConsoleInput = ProcessorInput;
+    public static event ReceiveMessage? ConsoleInput;
+
+    internal static async Task InvokeConsoleCommandAsync(string input)
+    {
+        ConsoleInput?.Invoke(input);
+        await ProcessorInput(input);
+    }
 
     internal static CancellationTokenSource? ConsoleReadCts { get; set; }
 
 
-    private static void ProcessorInput(string input)
+    private static async Task ProcessorInput(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
@@ -36,14 +42,8 @@ public static class ConsoleCommandProcessor
 
         ArraySegment<string> args = new ArraySegment<string>(inputs, 1, inputs.Length - 1);
         Log.Debug(Misc.Misc.IsArrayNullOrEmpty(args) ? "控制台无输入参数" : $"参数数组为:{string.Join(',', args)}");
-        if (consoleCommand.Execute(args, out string response))
-        {
-            Log.Info(string.IsNullOrWhiteSpace(response) ? "执行完毕!" : response);
-        }
-        else
-        {
-            Log.Warn(string.IsNullOrWhiteSpace(response) ? "执行失败!" : response);
-        }
+        string response = await consoleCommand.Execute(args);
+        Log.Info(string.IsNullOrWhiteSpace(response) ? "执行完毕!" : response);
     }
 
     internal static async Task Run()
@@ -66,7 +66,7 @@ public static class ConsoleCommandProcessor
 
             if (string.IsNullOrWhiteSpace(consoleInput)) continue;
             Log.Debug($"控制台以获取到用户输入: {consoleInput}");
-            ConsoleInput?.Invoke(consoleInput);
+            await InvokeConsoleCommandAsync(consoleInput);
         }
     }
 }

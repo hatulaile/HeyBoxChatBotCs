@@ -3,7 +3,7 @@ using HeyBoxChatBotCs.Api.Commands.Interfaces;
 
 namespace HeyBoxChatBotCs.Api.Features;
 
-public class User : ICommandSender
+public class User 
 {
     [JsonPropertyName("nickname")] public required string Name { get; init; }
     [JsonPropertyName("user_id")] public long UserId { get; init; }
@@ -15,11 +15,7 @@ public class User : ICommandSender
 
     [JsonPropertyName("avatar_decoration")]
     public required AvatarDecoration Decoration { get; init; }
-
-    public static User? Get(ICommandSender? sender)
-    {
-        return sender as User;
-    }
+    
 
     public class AvatarDecoration
     {

@@ -9,7 +9,7 @@ public class StopServerCommand : IConsoleCommand
     public string[]? Aliases { get; } = [];
     public string Description { get; } = "停止全部程序运行";
 
-    public bool Execute(ArraySegment<string> args, out string response)
+    public Task<string> Execute(ArraySegment<string> args)
     {
 #if DEBUG
         int code = 0;
@@ -18,8 +18,7 @@ public class StopServerCommand : IConsoleCommand
         }
 
         Misc.Misc.Exit(code);
-        response = string.Empty;
-        return true;
+        return Task.FromResult(string.Empty);
 #else
         Bot.Instance?.CloseAsync();
         response = "正在停止程序运行!";

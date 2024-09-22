@@ -10,7 +10,7 @@ public class ConsoleHelpCommand : IConsoleCommand
     public string[]? Aliases { get; } = [];
     public string Description { get; } = "输出全部控制台命令";
 
-    public bool Execute(ArraySegment<string> args, out string response)
+    public Task<string> Execute(ArraySegment<string> args)
     {
         StringBuilder sb = new StringBuilder("以下为全控制台命令:\n");
         int count = 0;
@@ -22,7 +22,6 @@ public class ConsoleHelpCommand : IConsoleCommand
         }
 
         sb.Append($"共 {count} 条指令可使用");
-        response = sb.ToString();
-        return true;
+        return Task.FromResult(sb.ToString());
     }
 }

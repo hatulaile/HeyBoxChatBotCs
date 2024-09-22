@@ -3,7 +3,7 @@
 namespace HeyBoxChatBotCs.Api;
 
 
-public delegate void UserSendCommandAction(UserSendCommandData commandInfo);
-public delegate void ReceiveMessage(string message);
+public delegate Task UserSendCommandAction(UserSendCommandData commandInfo);
+public delegate Task ReceiveMessage(string message);
 
-public delegate void EventHandler(object? sender);
+public delegate Task EventHandler(object? sender);

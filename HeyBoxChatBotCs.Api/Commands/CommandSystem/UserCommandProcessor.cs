@@ -43,10 +43,9 @@ public static class UserCommandProcessor
             return;
         }
 
-
-        if (userCommand.Execute(
-                new UserCommandArgs(data.MessageId, data.SendTime, data.Command, data.Channel, data.Room), data.User,
-                out string response) && !string.IsNullOrWhiteSpace(response))
+        string response = await userCommand.Execute(
+            new UserCommandArgs(data.User, data.MessageId, data.SendTime, data.Command, data.Channel, data.Room));
+        if (!string.IsNullOrWhiteSpace(response))
         {
             Log.Debug($"返回给用户:{response}");
             await Bot.Instance.SendMessageAsync(

@@ -7,10 +7,9 @@ namespace TestPlugin;
 [CommandHandler(typeof(UserCommandHandler))]
 public class PingCommand : IUserCommand
 {
-    public bool Execute(UserCommandArgs args, ICommandSender? sender, out string response)
+    public Task<string> Execute(UserCommandArgs args)
     {
-        response = $"Hello {User.Get(sender)?.Name ?? "Unknown"}.PONG.";
-        return true;
+        return Task.FromResult($"Hello {args.User.Name ?? "Unknown"}.PONG.");
     }
 
     public string Command { get; } = "ping";

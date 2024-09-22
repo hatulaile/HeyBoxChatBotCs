@@ -21,7 +21,7 @@ internal static class ServerMessageHandler
             }
         }.ToFrozenDictionary();
 
-    internal static async void ProcessMessageAsync(string json)
+    internal static async Task ProcessMessageAsync(string json)
     {
         ArgumentNullException.ThrowIfNull(json);
         JsonObject? jsonObject = JsonSerializer.Deserialize<JsonObject>(json);

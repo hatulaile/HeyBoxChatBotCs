@@ -4,5 +4,5 @@ namespace HeyBoxChatBotCs.Api.Commands.Interfaces;
 
 public interface IUserCommand : ICommandBase
 {
-    public bool Execute(UserCommandArgs args, ICommandSender? sender, out string response);
+    public Task<string> Execute(UserCommandArgs args);
 }
