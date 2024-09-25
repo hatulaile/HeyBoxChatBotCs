@@ -2,5 +2,5 @@
 
 public enum CommandTypeId
 {
-    Default = 0,
+    Default = 0
 }

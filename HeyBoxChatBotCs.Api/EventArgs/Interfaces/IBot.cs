@@ -2,5 +2,5 @@
 
 public interface IBot : IEvent
 {
-    public long BotId { get; init; }
+    long BotId { get; init; }
 }

@@ -21,7 +21,10 @@ public static class Misc
         return $"{nowTime:G} UTF{nowTime:zz}";
     }
 
-    public static bool IsArrayNullOrEmpty<T>(IList<T>? array) => array is null || array.Count == 0;
+    public static bool IsArrayNullOrEmpty<T>(IList<T>? array)
+    {
+        return array is null || array.Count == 0;
+    }
 
     public static bool IsDerivedFromClass<TType>(object source)
     {
@@ -52,12 +55,12 @@ public static class Misc
 
         while (source is not null)
         {
-
             if (source == target)
             {
                 return true;
             }
-            else if (isDefinition && source.IsGenericType)
+
+            if (isDefinition && source.IsGenericType)
             {
                 if (target.GetGenericTypeDefinition() == source.GetGenericTypeDefinition())
                 {

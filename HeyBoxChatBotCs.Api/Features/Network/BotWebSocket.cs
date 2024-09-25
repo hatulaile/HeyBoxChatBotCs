@@ -13,6 +13,8 @@ public class BotWebSocket : IDisposable
 
     private const int MAX_BUFFER_SIZE = 1024;
 
+    protected readonly ArraySegment<byte> AckSendMessage = "PING"u8.ToArray();
+
 
     //private const string QUERY = "?chat_os_type=bot&client_type=heybox_chat&chat_version=1.27.2";
     //"client_type=heybox_chat&x_client_type=web&os_type=web&" +
@@ -30,6 +32,14 @@ public class BotWebSocket : IDisposable
     private CancellationTokenSource? WebSocketCts { get; set; }
 
     public ClientWebSocket? WebSocket { get; private set; }
+
+    public void Dispose()
+    {
+        ReceiveMessage -= ServerMessageHandler.System.ServerMessageHandler.ProcessMessageAsync;
+        WebSocketCts?.Cancel();
+        WebSocketCts?.Dispose();
+        WebSocket?.Dispose();
+    }
 
     public async Task Start()
     {
@@ -81,8 +91,8 @@ public class BotWebSocket : IDisposable
 
     protected async Task ReceiveServerMessage()
     {
-        byte[] buffer = new byte[MAX_BUFFER_SIZE];
-        StringBuilder sb = new StringBuilder();
+        var buffer = new byte[MAX_BUFFER_SIZE];
+        var sb = new StringBuilder();
         while (true)
         {
             if (WebSocketCts is null || WebSocketCts.IsCancellationRequested || WebSocket is null)
@@ -138,8 +148,6 @@ public class BotWebSocket : IDisposable
         }
     }
 
-    protected readonly ArraySegment<byte> AckSendMessage = "PING"u8.ToArray();
-
     protected async Task Ack()
     {
         await Task.Delay(ACK_SLEEP_TIME);
@@ -172,13 +180,5 @@ public class BotWebSocket : IDisposable
 
             await Task.Delay(ACK_SLEEP_TIME);
         }
-    }
-
-    public void Dispose()
-    {
-        ReceiveMessage -= ServerMessageHandler.System.ServerMessageHandler.ProcessMessageAsync;
-        WebSocketCts?.Cancel();
-        WebSocketCts?.Dispose();
-        WebSocket?.Dispose();
     }
 }

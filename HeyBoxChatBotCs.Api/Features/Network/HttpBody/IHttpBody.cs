@@ -2,5 +2,5 @@
 
 public interface IHttpBody
 {
-    public HttpContent GetContent();
+    HttpContent GetContent();
 }

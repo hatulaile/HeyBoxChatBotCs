@@ -6,5 +6,5 @@ public enum MessageType
 
     [Obsolete($"建议直接使用 {nameof(MarkdownPing)}")]
     Markdown = 4,
-    MarkdownPing = 10,
+    MarkdownPing = 10
 }

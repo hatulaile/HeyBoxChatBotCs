@@ -16,8 +16,6 @@ public class Bot
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
 
-    public static Bot? Instance { get; private set; }
-
     public Bot(string id, string token)
     {
         Instance?.CloseAsync();
@@ -26,8 +24,10 @@ public class Bot
         Instance = this;
     }
 
-    public string Id { get; private set; }
-    public string Token { get; private set; }
+    public static Bot? Instance { get; private set; }
+
+    public string Id { get; }
+    public string Token { get; }
 
     public BotWebSocket? BotWebSocket { get; private set; }
 
@@ -38,7 +38,7 @@ public class Bot
     public static event EventHandler? BotClose;
 
     /// <summary>
-    /// 开启Bot 此方法会阻塞程序!
+    ///     开启Bot 此方法会阻塞程序!
     /// </summary>
     public async Task StartAsync()
     {
@@ -199,11 +199,9 @@ public class Bot
                 Log.Error($"上传文件失败,返回信息:{result.Value.Message}!状态:{result.Value.Status}");
                 return null;
             }
-            else
-            {
-                Log.Debug(
-                    $"上传文件返回,信息:\"{result.Value.Message}\",状态:{result.Value.Status},链接:{result.Value.Result.Uri}");
-            }
+
+            Log.Debug(
+                $"上传文件返回,信息:\"{result.Value.Message}\",状态:{result.Value.Status},链接:{result.Value.Result.Uri}");
 
             return result.Value.Result.Uri;
         }

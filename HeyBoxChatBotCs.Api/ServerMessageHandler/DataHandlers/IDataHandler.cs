@@ -2,5 +2,5 @@
 
 public interface IDataHandler
 {
-    public Task ProcessDataAsync(object? serverMessage);
+    Task ProcessDataAsync(object? serverMessage);
 }

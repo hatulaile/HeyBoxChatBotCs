@@ -4,14 +4,16 @@ public delegate Task CustomAsyncEventHandler();
 
 public class Event
 {
+    private static readonly List<Event> EventsValue = [];
+
     public Event()
     {
         EventsValue.Add(this);
     }
 
-    private event CustomAsyncEventHandler? InnerAsyncEvent;
-    private static readonly List<Event> EventsValue = [];
     public static IReadOnlyList<Event> List => EventsValue;
+
+    private event CustomAsyncEventHandler? InnerAsyncEvent;
 
     public void Subscribe(CustomAsyncEventHandler customEventHandler)
     {
@@ -52,7 +54,7 @@ public class Event
             }
             catch (TimeoutException timeoutException)
             {
-                Log.Error($"异步事件超时:" + timeoutException);
+                Log.Error("异步事件超时:" + timeoutException);
             }
             catch (Exception exception)
             {

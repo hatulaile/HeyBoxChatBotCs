@@ -10,7 +10,7 @@ namespace HeyBoxChatBotCs.Api.Features;
 public static class BotRequestUrl
 {
     private static FrozenDictionary<BotAction, RequestUri> BotActionToUri { get; } =
-        new Dictionary<BotAction, RequestUri>()
+        new Dictionary<BotAction, RequestUri>
         {
             {
                 BotAction.Connect, new RequestUri("wss://chat.xiaoheihe.cn/", "/chatroom/ws/connect",
@@ -32,7 +32,7 @@ public static class BotRequestUrl
             },
             {
                 BotAction.Upload,
-                new RequestUri("https://chat-upload.xiaoheihe.cn/", "/upload", new NameValueCollection()
+                new RequestUri("https://chat-upload.xiaoheihe.cn/", "/upload", new NameValueCollection
                 {
                     { "chat_os_type", "bot" },
                     { "client_type", "heybox_chat" },

@@ -4,5 +4,5 @@ namespace HeyBoxChatBotCs.Api.EventArgs.Interfaces;
 
 public interface ICommand : IEvent
 {
-    public CommandInfo CommandInfo { get; init; }
+    CommandInfo CommandInfo { get; init; }
 }

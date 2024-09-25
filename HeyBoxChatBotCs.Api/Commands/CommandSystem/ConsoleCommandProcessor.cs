@@ -7,6 +7,8 @@ public static class ConsoleCommandProcessor
 {
     public static readonly ConsoleCommandHandler ConsoleCommandHandler = ConsoleCommandHandler.Create();
 
+    internal static CancellationTokenSource? ConsoleReadCts { get; set; }
+
     public static event ReceiveMessage? ConsoleInput;
 
     internal static async Task InvokeConsoleCommandAsync(string input)
@@ -14,8 +16,6 @@ public static class ConsoleCommandProcessor
         ConsoleInput?.Invoke(input);
         await ProcessorInput(input);
     }
-
-    internal static CancellationTokenSource? ConsoleReadCts { get; set; }
 
 
     private static async Task ProcessorInput(string input)
@@ -27,7 +27,7 @@ public static class ConsoleCommandProcessor
 
         input = input.TrimStart('/', ' ', '\\', '.');
         Log.Debug($"控制台输入简化为: {input}");
-        var inputs = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        string[] inputs = input.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!ConsoleCommandHandler.TryGetCommand(inputs[0], out ICommandBase? command))
         {
             Log.Warn("未找到输入的命令,可以使用 help 查看所有命令!");
@@ -40,7 +40,7 @@ public static class ConsoleCommandProcessor
             return;
         }
 
-        ArraySegment<string> args = new ArraySegment<string>(inputs, 1, inputs.Length - 1);
+        var args = new ArraySegment<string>(inputs, 1, inputs.Length - 1);
         Log.Debug(Misc.Misc.IsArrayNullOrEmpty(args) ? "控制台无输入参数" : $"参数数组为:{string.Join(',', args)}");
         string response = await consoleCommand.Execute(args);
         Log.Info(string.IsNullOrWhiteSpace(response) ? "执行完毕!" : response);

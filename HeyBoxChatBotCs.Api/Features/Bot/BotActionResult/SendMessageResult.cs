@@ -7,7 +7,7 @@ public class SendMessageResult
     public class MessageResult
     {
         [JsonPropertyName("chatmobile_ack_id")]
-        public required string  ChatMobileAckId { get; init; }
+        public required string ChatMobileAckId { get; init; }
 
         [JsonPropertyName("heychat_ack_id")] public required string HeyChatAckId { get; init; }
     }

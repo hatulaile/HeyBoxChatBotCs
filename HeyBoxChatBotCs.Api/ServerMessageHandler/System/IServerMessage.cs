@@ -4,9 +4,9 @@ namespace HeyBoxChatBotCs.Api.ServerMessageHandler.System;
 
 public interface IServerMessage<TData> where TData : IServerMessageData
 {
-    [JsonPropertyName("sequence")] public long Sequence { get; init; }
-    [JsonPropertyName("type")] public string Type { get; init; }
-    [JsonPropertyName("notify_type")] public string NotifyType { get; init; }
-    [JsonPropertyName("data")] public TData Data { get; init; }
-    [JsonPropertyName("timestamp")] public long Timestamp { get; init; }
+    [JsonPropertyName("sequence")] long Sequence { get; init; }
+    [JsonPropertyName("type")] string Type { get; init; }
+    [JsonPropertyName("notify_type")] string NotifyType { get; init; }
+    [JsonPropertyName("data")] TData Data { get; init; }
+    [JsonPropertyName("timestamp")] long Timestamp { get; init; }
 }

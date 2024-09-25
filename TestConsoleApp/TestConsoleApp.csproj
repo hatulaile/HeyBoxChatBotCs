@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\HeyBoxChatBotCs.Api\HeyBoxBotCs.Api.csproj" />
+        <ProjectReference Include="..\HeyBoxChatBotCs.Api\HeyBoxBotCs.Api.csproj"/>
     </ItemGroup>
 
 </Project>

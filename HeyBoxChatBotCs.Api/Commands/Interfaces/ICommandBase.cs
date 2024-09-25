@@ -2,7 +2,7 @@
 
 public interface ICommandBase
 {
-    public string Command { get; }
-    public string[]? Aliases { get; }
-    public string Description { get; }
+    string Command { get; }
+    string[]? Aliases { get; }
+    string Description { get; }
 }

@@ -1,5 +1,4 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
-using HeyBoxChatBotCs.Api.Features.Bot;
 
 namespace HeyBoxChatBotCs.Api.Commands.ConsoleCommands;
 
@@ -12,7 +11,7 @@ public class StopServerCommand : IConsoleCommand
     public Task<string> Execute(ArraySegment<string> args)
     {
 #if DEBUG
-        int code = 0;
+        var code = 0;
         if (args.Count != 0 && int.TryParse(args.ElementAt(0), out code))
         {
         }

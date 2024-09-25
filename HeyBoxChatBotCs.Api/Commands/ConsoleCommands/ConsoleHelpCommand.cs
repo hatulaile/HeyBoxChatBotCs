@@ -12,8 +12,8 @@ public class ConsoleHelpCommand : IConsoleCommand
 
     public Task<string> Execute(ArraySegment<string> args)
     {
-        StringBuilder sb = new StringBuilder("以下为全控制台命令:\n");
-        int count = 0;
+        var sb = new StringBuilder("以下为全控制台命令:\n");
+        var count = 0;
         foreach (ICommandBase command in
                  ConsoleCommandProcessor.ConsoleCommandHandler.AllCommand)
         {

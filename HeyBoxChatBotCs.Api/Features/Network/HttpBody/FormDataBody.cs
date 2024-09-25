@@ -15,7 +15,7 @@ public class FormDataBody : IHttpBody
 
     public HttpContent GetContent()
     {
-        MultipartFormDataContent formDataContent = new MultipartFormDataContent();
+        var formDataContent = new MultipartFormDataContent();
         foreach (FormDataBodyItemBase item in Items)
         {
             HttpContent? content = item.GetContent();

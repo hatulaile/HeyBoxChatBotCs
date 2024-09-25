@@ -6,8 +6,8 @@ namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
 public abstract class CommandHandler
 {
-    protected readonly Dictionary<string, ICommandBase> Commands = new(StringComparer.OrdinalIgnoreCase);
     protected readonly Dictionary<string, string> CommandAliases = new(StringComparer.OrdinalIgnoreCase);
+    protected readonly Dictionary<string, ICommandBase> Commands = new(StringComparer.OrdinalIgnoreCase);
 
     public virtual IEnumerable<ICommandBase> AllCommand => Commands.Values;
 
@@ -58,7 +58,7 @@ public abstract class CommandHandler
 
         if (!Commands.TryGetValue(query, out ICommandBase? command))
         {
-            throw new CommandUnregisteredException(command: query);
+            throw new CommandUnregisteredException(query);
         }
 
         Commands.Remove(command.Command);

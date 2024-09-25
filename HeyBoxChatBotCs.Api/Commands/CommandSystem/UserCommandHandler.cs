@@ -4,7 +4,7 @@ public class UserCommandHandler : CommandHandler
 {
     public static UserCommandHandler Create()
     {
-        UserCommandHandler consoleCommandHandler = new UserCommandHandler();
+        var consoleCommandHandler = new UserCommandHandler();
         consoleCommandHandler.LoadOriginalCommand();
         return consoleCommandHandler;
     }

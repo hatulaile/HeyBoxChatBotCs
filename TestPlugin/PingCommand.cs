@@ -1,6 +1,5 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Commands.Interfaces;
-using HeyBoxChatBotCs.Api.Features;
 
 namespace TestPlugin;
 
@@ -9,7 +8,7 @@ public class PingCommand : IUserCommand
 {
     public Task<string> Execute(UserCommandArgs args)
     {
-        return Task.FromResult($"Hello {args.User.Name ?? "Unknown"}.PONG.");
+        return Task.FromResult($"Hello {args.User.Name}.PONG.");
     }
 
     public string Command { get; } = "ping";

@@ -31,7 +31,7 @@ public static class HttpRequest
 
     public static async Task<HttpResponseMessageValue<string?>> Get(Uri uri, Dictionary<string, string>? headers = null)
     {
-        var ret = await GetResponseMessageAsync(uri, headers);
+        HttpResponseMessage ret = await GetResponseMessageAsync(uri, headers);
         return new HttpResponseMessageValue<string?>(ret, await ret.Content.ReadAsStringAsync());
     }
 
@@ -58,7 +58,7 @@ public static class HttpRequest
         Dictionary<string, string>? headers = null,
         string? path = null, NameValueCollection? query = null)
     {
-        var ret = await GetResponseMessageAsync(uri, headers, path, query);
+        HttpResponseMessage ret = await GetResponseMessageAsync(uri, headers, path, query);
         return new HttpResponseMessageValue<string?>(ret, await ret.Content.ReadAsStringAsync());
     }
 
@@ -71,7 +71,7 @@ public static class HttpRequest
     internal static async Task<HttpResponseMessage> GetResponseMessageAsync(Uri uri,
         Dictionary<string, string>? headers)
     {
-        using HttpClient httpClient = new HttpClient();
+        using var httpClient = new HttpClient();
         if (headers is not null)
         {
             foreach (KeyValuePair<string, string> header in headers)
@@ -127,7 +127,7 @@ public static class HttpRequest
     public static async Task<HttpResponseMessageValue<string?>> Post(string uri, IHttpBody body,
         Dictionary<string, string>? headers = null, string? path = null, NameValueCollection? query = null)
     {
-        var ret = await PostResponseMessageAsync(uri, body, headers, path, query);
+        HttpResponseMessage ret = await PostResponseMessageAsync(uri, body, headers, path, query);
         return new HttpResponseMessageValue<string?>(ret, await ret.Content.ReadAsStringAsync());
     }
 
@@ -142,7 +142,7 @@ public static class HttpRequest
     internal static async Task<HttpResponseMessage> PostResponseMessageAsync(Uri uri,
         IHttpBody body, Dictionary<string, string>? headers)
     {
-        using HttpClient httpClient = new HttpClient();
+        using var httpClient = new HttpClient();
         if (headers is not null)
         {
             foreach (KeyValuePair<string, string> header in headers)

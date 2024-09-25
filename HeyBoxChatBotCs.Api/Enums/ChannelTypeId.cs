@@ -7,5 +7,5 @@ public enum ChannelTypeId
     Announcement = 2,
     Group = 3,
     Temp = 4,
-    TempHandler = 5,
+    TempHandler = 5
 }

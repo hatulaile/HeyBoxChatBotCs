@@ -6,5 +6,5 @@ namespace HeyBoxChatBotCs.Api.ServerMessageHandler.Interfaces;
 public interface IChannelData : IData
 {
     [JsonPropertyName("channel_base_info")]
-    public Channel Channel { get; init; }
+    Channel Channel { get; init; }
 }

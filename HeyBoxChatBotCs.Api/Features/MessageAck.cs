@@ -2,8 +2,8 @@
 
 public static class MessageAck
 {
-    private static ushort Serial { get; set; } = ushort.MinValue;
     private static readonly object GetLock = new();
+    private static ushort Serial { get; set; } = ushort.MinValue;
 
     public static string GetAckId()
     {

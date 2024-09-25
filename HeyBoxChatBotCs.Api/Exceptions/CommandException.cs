@@ -4,6 +4,8 @@ namespace HeyBoxChatBotCs.Api.Exceptions;
 
 public class CommandException : Exception
 {
+    protected string MessageStr;
+
     public CommandException(string? message = null, string? command = null)
     {
         MessageStr = string.IsNullOrWhiteSpace(message) ? "命令异常" : message;
@@ -16,8 +18,6 @@ public class CommandException : Exception
 
 
     public string? Command { get; }
-
-    protected string MessageStr;
 
     public override string Message
     {

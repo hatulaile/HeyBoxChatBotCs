@@ -4,7 +4,6 @@ using System.Text.Json.Nodes;
 using HeyBoxChatBotCs.Api.Features;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.DataConverters;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.DataHandlers;
-using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageData;
 
 namespace HeyBoxChatBotCs.Api.ServerMessageHandler.System;
 
@@ -13,7 +12,7 @@ internal static class ServerMessageHandler
     private static JsonSerializerOptions JsonSerializerOptions { get; } = JsonSerializerOptions.Default;
 
     public static FrozenDictionary<string, KeyValuePair<IDataConverter, IDataHandler>> HandlerMapping { get; } =
-        new Dictionary<string, KeyValuePair<IDataConverter, IDataHandler>>()
+        new Dictionary<string, KeyValuePair<IDataConverter, IDataHandler>>
         {
             {
                 "50",
@@ -25,10 +24,10 @@ internal static class ServerMessageHandler
     internal static async Task ProcessMessageAsync(string json)
     {
         ArgumentNullException.ThrowIfNull(json);
-        JsonObject? jsonObject = JsonSerializer.Deserialize<JsonObject>(json);
+        var jsonObject = JsonSerializer.Deserialize<JsonObject>(json);
         if (jsonObject is null)
         {
-            Log.Error($"解析服务器发送信息时失败:JsonObject为空!");
+            Log.Error("解析服务器发送信息时失败:JsonObject为空!");
             return;
         }
 
@@ -49,6 +48,7 @@ internal static class ServerMessageHandler
             Log.Error($"解析服务器发送信息时失败:发现未知服务器信息类型 {typeStr}");
             return;
         }
+
         try
         {
             object? message = await type.Key.ConverterAsync(json);

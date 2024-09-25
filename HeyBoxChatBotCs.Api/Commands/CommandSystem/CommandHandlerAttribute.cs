@@ -1,6 +1,6 @@
 ﻿namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class CommandHandlerAttribute : Attribute
 {
     public CommandHandlerAttribute(Type type)

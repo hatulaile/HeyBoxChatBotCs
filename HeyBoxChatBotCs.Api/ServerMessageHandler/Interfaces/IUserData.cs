@@ -5,5 +5,5 @@ namespace HeyBoxChatBotCs.Api.ServerMessageHandler.Interfaces;
 
 public interface IUserData : IData
 {
-    [JsonPropertyName("sender_info")] public User User { get; init; }
+    [JsonPropertyName("sender_info")] User User { get; init; }
 }

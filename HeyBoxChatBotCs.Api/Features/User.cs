@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
-using HeyBoxChatBotCs.Api.Commands.Interfaces;
 
 namespace HeyBoxChatBotCs.Api.Features;
 
-public class User 
+public class User
 {
     [JsonPropertyName("nickname")] public required string Name { get; init; }
     [JsonPropertyName("user_id")] public long UserId { get; init; }
@@ -15,7 +14,7 @@ public class User
 
     [JsonPropertyName("avatar_decoration")]
     public required AvatarDecoration Decoration { get; init; }
-    
+
 
     public class AvatarDecoration
     {

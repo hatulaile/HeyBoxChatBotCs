@@ -6,11 +6,6 @@ namespace HeyBoxChatBotCs.Api.Loader;
 
 public class Loader
 {
-    public static Dictionary<Assembly, string> Locations { get; } = new();
-    public static List<Assembly> LoadedAssembly => Locations.Keys.ToList();
-
-    public static SortedSet<IPlugin<IConfig>> Plugins { get; } = new(PluginPriorityComparer.Instance);
-
     public static readonly HashSet<Assembly> Dependencies = [];
 
     public Loader()
@@ -22,8 +17,15 @@ public class Loader
         AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
     }
 
-    private static Assembly? OnAssemblyResolve(object? sender, ResolveEventArgs args) =>
-        LoadedAssembly.FirstOrDefault(assembly => assembly.FullName == args.Name);
+    public static Dictionary<Assembly, string> Locations { get; } = new();
+    public static List<Assembly> LoadedAssembly => Locations.Keys.ToList();
+
+    public static SortedSet<IPlugin<IConfig>> Plugins { get; } = new(PluginPriorityComparer.Instance);
+
+    private static Assembly? OnAssemblyResolve(object? sender, ResolveEventArgs args)
+    {
+        return LoadedAssembly.FirstOrDefault(assembly => assembly.FullName == args.Name);
+    }
 
     public async Task Run()
     {
@@ -67,7 +69,7 @@ public class Loader
             IPlugin<IConfig>? plugin = await CreatePlugin(assembly);
             if (plugin is null)
                 continue;
-            AssemblyInformationalVersionAttribute? attribute =
+            var attribute =
                 plugin.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
             Log.Info(

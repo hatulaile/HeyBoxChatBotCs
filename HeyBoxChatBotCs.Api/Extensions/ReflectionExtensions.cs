@@ -10,7 +10,7 @@ public static class ReflectionExtensions
         Type type = target.GetType();
         foreach (PropertyInfo info in type.GetProperties())
         {
-            var t = source.FirstOrDefault(x => x.Key == info.Name).Value;
+            object? t = source.FirstOrDefault(x => x.Key == info.Name).Value;
             if (t is null)
             {
                 Log.Warn($"复制属性时未找到 {info.Name} 属性!");

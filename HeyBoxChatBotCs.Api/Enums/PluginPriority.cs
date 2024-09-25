@@ -11,5 +11,5 @@ public enum PluginPriority
     High = 250,
     Higher = 500,
     Highest = First,
-    First = int.MaxValue,
+    First = int.MaxValue
 }

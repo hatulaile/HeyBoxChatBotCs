@@ -6,7 +6,7 @@ public class ConsoleCommandHandler : CommandHandler
 {
     public static ConsoleCommandHandler Create()
     {
-        ConsoleCommandHandler consoleCommandHandler = new ConsoleCommandHandler();
+        var consoleCommandHandler = new ConsoleCommandHandler();
         consoleCommandHandler.LoadOriginalCommand();
         return consoleCommandHandler;
     }

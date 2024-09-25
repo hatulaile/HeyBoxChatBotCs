@@ -22,14 +22,6 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
         Config = new TConfig();
     }
 
-    public Assembly Assembly { get; }
-    public virtual string Name { get; }
-    public virtual string? Author { get; }
-    public virtual PluginPriority Priority { get; }
-    public virtual Version? Version { get; }
-
-    public TConfig Config { get; }
-
     public Dictionary<Type, Dictionary<Type, ICommandBase>> Commands { get; } = new()
     {
         {
@@ -40,19 +32,31 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
         }
     };
 
+    public Assembly Assembly { get; }
+    public virtual string Name { get; }
+    public virtual string? Author { get; }
+    public virtual PluginPriority Priority { get; }
+    public virtual Version? Version { get; }
+
+    public TConfig Config { get; }
+
     public virtual void OnEnabled()
     {
-        AssemblyInformationalVersionAttribute? attribute =
+        var attribute =
             Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
         Log.Info(
             $" {Author} 制作的插件 {Name} v{(Version is not null ? $"{Version.Major}.{Version.Minor}.{Version.Build}" : attribute is not null ? attribute.InformationalVersion : string.Empty)} 已启用");
     }
 
-    public virtual void OnDisabled() =>
+    public virtual void OnDisabled()
+    {
         Log.Info($"{Name} 正在禁用!");
+    }
 
     public virtual void OnReloaded()
-        => Log.Info($"{Name} 正在重启!");
+    {
+        Log.Info($"{Name} 正在重启!");
+    }
 
 
     public virtual void OnRegisteringCommands()
@@ -67,7 +71,7 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
                 foreach (CustomAttributeData data in type.GetCustomAttributesData()
                              .Where(data => data.AttributeType == typeof(CommandHandlerAttribute)))
                 {
-                    Type? key = (Type?)data.ConstructorArguments.ElementAt(0).Value;
+                    var key = (Type?)data.ConstructorArguments.ElementAt(0).Value;
                     if (key is not null &&
                         Commands.TryGetValue(key, out Dictionary<Type, ICommandBase>? dictionary))
                     {
@@ -140,5 +144,8 @@ public abstract class Plugin<TConfig> : IPlugin<TConfig>
         }
     }
 
-    public int CompareTo(IPlugin<IConfig>? other) => -Priority.CompareTo(other?.Priority);
+    public int CompareTo(IPlugin<IConfig>? other)
+    {
+        return -Priority.CompareTo(other?.Priority);
+    }
 }

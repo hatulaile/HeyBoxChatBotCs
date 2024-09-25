@@ -8,5 +8,5 @@ public enum CommandArgsTypeId
     User = 6,
     Channel = 7,
     Role = 8,
-    Select = 9,
+    Select = 9
 }

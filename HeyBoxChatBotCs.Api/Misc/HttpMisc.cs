@@ -36,7 +36,7 @@ public static partial class HttpMisc
             throw new UriFormatException("传入的链接不是一个可用的链接");
         }
 
-        StringBuilder sb = new StringBuilder(uri);
+        var sb = new StringBuilder(uri);
         if (paths is not null)
         {
             foreach (string path in paths)

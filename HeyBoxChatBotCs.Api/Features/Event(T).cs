@@ -4,15 +4,15 @@ public delegate Task CustomAsyncEventHandler<in TEventArgs>(TEventArgs args);
 
 public class Event<TEventArgs>
 {
-    private event CustomAsyncEventHandler<TEventArgs>? InnerAsyncEvent;
+    private static readonly Dictionary<Type, Event<TEventArgs>> TypeToEvent = new();
 
     public Event()
     {
         TypeToEvent.Add(typeof(TEventArgs), this);
     }
 
-    private static readonly Dictionary<Type, Event<TEventArgs>> TypeToEvent = new();
     public static IReadOnlyDictionary<Type, Event<TEventArgs>> Dictionary => TypeToEvent;
+    private event CustomAsyncEventHandler<TEventArgs>? InnerAsyncEvent;
 
     public void Subscribe(CustomAsyncEventHandler<TEventArgs> customEventHandler)
     {

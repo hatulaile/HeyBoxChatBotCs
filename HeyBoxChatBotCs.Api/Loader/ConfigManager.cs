@@ -35,7 +35,7 @@ public static class ConfigManager
 
     private static async Task LoadAsync(List<Dictionary<string, object?>> configs)
     {
-        for (int i = 0; i < Loader.Plugins.Count; i++)
+        for (var i = 0; i < Loader.Plugins.Count; i++)
         {
             await Loader.Plugins.ElementAt(i).Config.CopyPropertiesAsync(configs[i]);
         }

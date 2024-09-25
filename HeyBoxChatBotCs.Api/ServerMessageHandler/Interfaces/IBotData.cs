@@ -4,5 +4,5 @@ namespace HeyBoxChatBotCs.Api.ServerMessageHandler.Interfaces;
 
 public interface IBotData : IData
 {
-    [JsonPropertyName("bot_id")] public long BotId { get; init; }
+    [JsonPropertyName("bot_id")] long BotId { get; init; }
 }

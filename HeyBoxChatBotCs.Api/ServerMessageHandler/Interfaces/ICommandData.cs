@@ -5,5 +5,5 @@ namespace HeyBoxChatBotCs.Api.ServerMessageHandler.Interfaces;
 
 public interface ICommandData : IData
 {
-    [JsonPropertyName("command_info")] public CommandInfo Command { get; init; }
+    [JsonPropertyName("command_info")] CommandInfo Command { get; init; }
 }

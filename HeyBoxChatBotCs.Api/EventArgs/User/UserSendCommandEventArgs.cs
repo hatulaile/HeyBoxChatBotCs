@@ -19,13 +19,14 @@ public class UserSendCommandEventArgs : ISendCommand, ICommand
         CommandInfo = commandInfo;
     }
 
+    public CommandInfo CommandInfo { get; init; }
+
     public long BotId { get; init; }
     public Channel Channel { get; init; }
     public Room Room { get; init; }
     public Features.User User { get; init; }
     public string MessageId { get; init; }
     public long SendTime { get; init; }
-    public CommandInfo CommandInfo { get; init; }
 
     public static implicit operator UserSendCommandEventArgs(UserSendCommandData data)
     {

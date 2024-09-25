@@ -5,5 +5,5 @@ namespace HeyBoxChatBotCs.Api.ServerMessageHandler.Interfaces;
 
 public interface IRoomData : IData
 {
-    [JsonPropertyName("room_base_info")] public Room Room { get; init; }
+    [JsonPropertyName("room_base_info")] Room Room { get; init; }
 }

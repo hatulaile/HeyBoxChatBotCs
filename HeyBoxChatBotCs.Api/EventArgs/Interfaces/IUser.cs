@@ -2,5 +2,5 @@
 
 public interface IUser : IEvent
 {
-    public Features.User User { get; init; }
+    Features.User User { get; init; }
 }

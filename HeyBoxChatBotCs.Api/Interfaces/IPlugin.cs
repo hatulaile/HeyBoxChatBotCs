@@ -13,7 +13,7 @@ public interface IPlugin<out TConfig> : IComparable<IPlugin<IConfig>>
     Version? Version { get; }
     TConfig Config { get; }
     void OnEnabled();
-    
+
     void OnDisabled();
     void OnReloaded();
     void OnRegisteringCommands();
