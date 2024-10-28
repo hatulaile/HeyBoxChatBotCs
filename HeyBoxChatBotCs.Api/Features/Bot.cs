@@ -188,7 +188,6 @@ public class Bot
     public async Task<SendMessageResult> SendMessageAsync(MessageBase message)
     {
         var res = await BotSendRequestAsync<SendMessageResult>(message, BotOperation.SendMessage);
-        Log.Debug($"发送信息返回:{res.Value},{res.Value.Result}");
         return res.Value.Result;
     }
 
@@ -196,14 +195,12 @@ public class Bot
     {
         HttpResponseMessageValue<BotOperationResult<UpdateMarkdownMessageResult>> res =
             await BotSendRequestAsync<UpdateMarkdownMessageResult>(dto, BotOperation.UpdateMessage);
-        Log.Debug($"更新信息角色返回:{res.Value}");
         return res.Value.Result;
     }
 
     public async Task DeleteMessageAsync(DeleteEmojiDto dto)
     {
         var res = await BotSendRequestAsync<object>(dto, BotOperation.DeleteMessage);
-        Log.Debug($"删除信息返回:{res.Value},{res.Value.Result}");
     }
 
 
@@ -222,10 +219,6 @@ public class Bot
                 new FormDataBody(new FormDataBodyFile("file", filePath)),
                 BotOperation.Upload);
         }
-
-        Log.Debug(
-            $"上传文件返回:{result.Value},链接:{result.Value.Result.Uri}");
-
         return result.Value.Result.Uri;
     }
 
@@ -235,7 +228,6 @@ public class Bot
         {
             { "room_id", roomId }
         });
-        Log.Debug($"获取房间表情返回:{res.Value}");
         return res.Value.Result;
     }
 
@@ -245,33 +237,28 @@ public class Bot
         {
             { "room_id", roomId }
         });
-        Log.Debug($"获取房间表情返回:{res.Value}");
         return res.Value.Result.Roles;
     }
 
     public async Task EditEmojiNameAsync(EditEmojiNameDto dto)
     {
         var res = await BotSendRequestAsync<object>(dto, BotOperation.EditEmojiName);
-        Log.Debug($"更改表情名称返回:{res.Value}");
     }
 
     public async Task DeleteEmojiAsync(DeleteEmojiDto dto)
     {
         var res = await BotSendRequestAsync<object>(dto, BotOperation.DeleteEmoji);
-        Log.Debug($"删除表情返回:{res.Value}");
     }
 
     public async Task<Role> CreateRoleAsync(CreateRoleDto dto)
     {
         var res = await BotSendRequestAsync<CreateRoleResult>(dto, BotOperation.CreateRole);
-        Log.Debug($"创造角色返回:{res.Value}");
         return res.Value.Result.Role;
     }
 
     public async Task<Role> UpdateRoleAsync(UpdateRoleDto dto)
     {
-        var res = await BotSendRequestAsync<UpdateRoleResult>(dto, BotOperation.UpdateRole);
-        Log.Debug($"更新角色返回:{res.Value}");
+        var res = await BotSendRequestAsync<UpdateRoleResult>(dto, BotOperation.UpdateRole); ;
         return res.Value.Result.Role;
     }
 
@@ -279,7 +266,6 @@ public class Bot
     {
         HttpResponseMessageValue<BotOperationResult<OperationUserRoleResult>> res =
             await BotSendRequestAsync<OperationUserRoleResult>(dto, BotOperation.GiveUserRole);
-        Log.Debug($"给予用户角色返回:{res.Value}");
         return res.Value.Result.User;
     }
 
@@ -287,7 +273,6 @@ public class Bot
     {
         HttpResponseMessageValue<BotOperationResult<OperationUserRoleResult>> res =
             await BotSendRequestAsync<OperationUserRoleResult>(dto, BotOperation.RevokeUserRole);
-        Log.Debug($"剥夺用户角色返回:{res.Value}");
         return res.Value.Result.User;
     }
 
@@ -295,6 +280,5 @@ public class Bot
     {
         HttpResponseMessageValue<BotOperationResult<object>> res =
             await BotSendRequestAsync<object>(dto, BotOperation.DeleteRole);
-        Log.Debug($"删除用户角色返回:{res.Value}");
     }
 }
