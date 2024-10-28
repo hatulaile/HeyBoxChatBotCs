@@ -1,0 +1,43 @@
+namespace HeyBoxChatBotCs.Api.Enums;
+
+[Flags]
+public enum Permission : long
+{
+    Admin = 1,
+    CheckChannel = 2,
+    ViewChannel = 4,
+    ViewAuditLog = 8,
+    ManageRoles = 16,
+    ManageRoom = 32,
+    CreateInvite = 64,
+    ManageInvites = 128,
+    ChangeNickname = 256,
+    ManageNicknames = 512,
+    KickFromRoom = 1024,
+    KickFromChannel = 2048,
+    BanFromRoom = 4096,
+    MuteUser = 8192,
+    SendMessage = 16384,
+    UploadFile = 32768,
+    MentionAllOnlineGroups = 65536,
+    AddReaction = 131072,
+    ManageMessages = 262144,
+    ReceiveOfflineMessages = 524288,
+    CreatePartyInvite = 1048576,
+    ManagePartyInvites = 2097152,
+    JoinVoiceChannel = 4194304,
+    SpeakInVoiceChannel = 8388608,
+    AllowPushToTalk = 16777216,
+    MuteChannel = 33554432,
+    MuteMember = 67108864,
+    MoveMembers = 134217728,
+    ManageStatements = 268435456,
+    ModifyOthersInvites = 536870912,
+    ManageEmojis = 1073741824,
+    ManageVoicePacks = 2147483648,
+    PlayVoicePack = 4294967296,
+    PlayBackgroundMusic = 8589934592,
+    ShareScreen = 17179869184,
+    PublishTeam = 34359738368,
+    UseBotCommands = 68719476736
+}

@@ -3,7 +3,9 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using HeyBoxChatBotCs.Api.Features;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.DataConverters;
+using HeyBoxChatBotCs.Api.ServerMessageHandler.DataConverters.User;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.DataHandlers;
+using HeyBoxChatBotCs.Api.ServerMessageHandler.DataHandlers.User;
 
 namespace HeyBoxChatBotCs.Api.ServerMessageHandler.System;
 
@@ -18,6 +20,11 @@ internal static class ServerMessageHandler
                 "50",
                 new KeyValuePair<IDataConverter, IDataHandler>(new UserSendCommandConverter(),
                     new UserSendCommandHandler())
+            },
+            {
+                "5003",
+                new KeyValuePair<IDataConverter, IDataHandler>(new UserOperationMessageEmojiConverter(),
+                    new UserOperationMessageEmojiHandler())
             }
         }.ToFrozenDictionary();
 

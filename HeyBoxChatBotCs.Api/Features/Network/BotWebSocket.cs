@@ -21,12 +21,12 @@ public class BotWebSocket : IDisposable
     // "x_os_type=bot&x_app=heybox_chat&chat_os_type=bot&chat_version=999.0.0";
 
 
-    public BotWebSocket(Bot.Bot bot)
+    public BotWebSocket(Bot bot)
     {
         Bot = bot;
     }
 
-    private Bot.Bot Bot { get; }
+    private Bot Bot { get; }
 
 
     private CancellationTokenSource? WebSocketCts { get; set; }
@@ -59,14 +59,10 @@ public class BotWebSocket : IDisposable
 
             WebSocketCts = new CancellationTokenSource();
 
-            if (WebSocket is null)
-            {
-                WebSocket = new ClientWebSocket();
-                WebSocket.Options.SetRequestHeader("token", Bot.Token);
-            }
-
+            WebSocket = new ClientWebSocket();
+            WebSocket.Options.SetRequestHeader("token", Bot.Token);
             await WebSocket.ConnectAsync(
-                BotRequestUrl.GetUri(BotAction.Connect)!,
+                BotRequestUrl.GetUri(BotOperation.Connect),
                 WebSocketCts.Token);
 
             _ = ReceiveServerMessage();
@@ -83,6 +79,7 @@ public class BotWebSocket : IDisposable
             Dispose();
             Log.Error($"连接错误,将于{ERROR_SLEEP_TIME}毫秒后重连!");
             Thread.Sleep(ERROR_SLEEP_TIME);
+            await Start();
         }
     }
 

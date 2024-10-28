@@ -1,0 +1,5 @@
+using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageData.User;
+
+namespace HeyBoxChatBotCs.Api.ServerMessageHandler.DataConverters.User;
+
+public class UserOperationMessageEmojiConverter : UniversalConverter<UserOperationMessageEmojiData>;

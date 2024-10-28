@@ -10,10 +10,22 @@ public static partial class HttpMisc
 {
     internal static readonly char[] PathSeparator = ['/', '\\'];
 
-    public static Uri ConstructUrl(RequestUri requestUrl)
+    public static Uri ConstructUrl(RequestUri requestUrl, NameValueCollection? extraQuery = null)
     {
-        return ConstructUrl(requestUrl.BaseUrl, requestUrl.Path, requestUrl.Query);
+        if (extraQuery is null)
+        {
+            return ConstructUrl(requestUrl.BaseUrl, requestUrl.Path, requestUrl.Query);
+        }
+
+        if (requestUrl.Query is null)
+        {
+            return ConstructUrl(requestUrl.BaseUrl, requestUrl.Path);
+        }
+
+        NameValueCollection query = [requestUrl.Query, extraQuery];
+        return ConstructUrl(requestUrl.BaseUrl, requestUrl.Path, query);
     }
+
 
     public static Uri ConstructUrl(string uri, string? path = null, string? query = null)
     {

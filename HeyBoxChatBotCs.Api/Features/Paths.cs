@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using HeyBoxChatBotCs.Api.Interfaces;
 
 namespace HeyBoxChatBotCs.Api.Features;
@@ -9,11 +10,12 @@ public static class Paths
         Reload();
     }
 
-    public static string RootPath { get; set; } = null!;
-    public static string ConfigPath { get; set; } = null!;
-    public static string PluginPath { get; set; } = null!;
-    public static string DependenciesPath { get; set; } = null!;
+    public static string RootPath { get; set; }
+    public static string ConfigPath { get; set; }
+    public static string PluginPath { get; set; }
+    public static string DependenciesPath { get; set; }
 
+    [MemberNotNull(nameof(RootPath), nameof(ConfigPath), nameof(DependenciesPath), nameof(PluginPath))]
     public static void Reload()
     {
         RootPath = Environment.CurrentDirectory;
@@ -34,7 +36,7 @@ public static class Paths
     public static string GetPluginConfigPath<TConfig>(IPlugin<TConfig> plugin)
         where TConfig : IConfig
     {
-        string path = Path.Combine(ConfigPath, ClearInvalidChars(Bot.Bot.Instance?.Id ?? "Default"));
+        string path = Path.Combine(ConfigPath, ClearInvalidChars(Bot.Instance?.Id ?? "Default"));
         IfNotExistsBeCreate(path);
         return Path.Combine(path, ClearInvalidChars(plugin.Name) + ".json");
     }

@@ -1,14 +1,24 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Commands.Interfaces;
+using HeyBoxChatBotCs.Api.Features;
+using HeyBoxChatBotCs.Api.Features.BotRequestDto.Message;
 
 namespace TestPlugin;
 
 [CommandHandler(typeof(UserCommandHandler))]
 public class PingCommand : IUserCommand
 {
-    public Task<string> Execute(UserCommandArgs args)
+    public async Task<string> Execute(UserCommandArgs args)
     {
-        return Task.FromResult($"Hello {args.User.Name}.PONG.");
+        await Bot.Instance.SendMessageAsync(new MarkdownMessageDto("""
+                                                                | Id | Name | Age |
+                                                                |:--:|:----:|:---:|
+                                                                |  0 | Jack |  12 |
+                                                                |  1 | Alex |  17 |
+                                                                |  2 | Evan |  22 |
+                                                                """,args.Room,args.Channel));
+        return string.Empty;
+        //  return Task.FromResult($"Hello {args.User.Name}.PONG.");
     }
 
     public string Command { get; } = "ping";

@@ -15,5 +15,6 @@ public class ConsoleCommandHandler : CommandHandler
     {
         RegisterCommand(new ConsoleHelpCommand());
         RegisterCommand(new StopServerCommand());
+        RegisterCommand(new Test());
     }
 }

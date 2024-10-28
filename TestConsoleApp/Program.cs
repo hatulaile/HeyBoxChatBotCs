@@ -1,4 +1,4 @@
-﻿using HeyBoxChatBotCs.Api.Features.Bot;
+﻿using HeyBoxChatBotCs.Api.Features;
 
-const string token = "NzIxNzIyODY7MTcyNjk5NDgzMjg0MDcxNzMzODs4NDI2MTIxMjA2NDg2MDEwNDk=";
+const string token = "Token";
 await new Bot("hatu", token).StartAsync();
