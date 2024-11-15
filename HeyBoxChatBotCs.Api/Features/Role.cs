@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using HeyBoxChatBotCs.Api.Enums;
+using HeyBoxChatBotCs.Api.Converters;
 
 namespace HeyBoxChatBotCs.Api.Features;
 
@@ -21,16 +22,20 @@ public class Role
     [JsonPropertyName("type")] public required RoleType Type { get; set; }
     [JsonPropertyName("color")] public required long Color { get; set; }
     [JsonPropertyName("position")] public required int Position { get; set; }
-    [JsonPropertyName("del_tag")] public required int DelTag { get; set; }
-    [JsonPropertyName("hoist")] public required int Hoist { get; set; }
-    [JsonPropertyName("creator")] public required int Creator { get; set; }
+
+    [JsonPropertyName("del_tag"), JsonConverter(typeof(NumberBooleanJsonConverter))]
+    public required bool IsExist { get; set; }
+
+    [JsonPropertyName("hoist"), JsonConverter(typeof(NumberBooleanJsonConverter))]
+    public required bool IsHoist { get; set; }
+
+    [JsonPropertyName("mentionable"), JsonConverter(typeof(NumberBooleanJsonConverter))]
+    public bool CanMentionable { get; set; }
+
+    [JsonPropertyName("creator")] public required ulong Creator { get; set; }
+
     [JsonPropertyName("create_time")] public required long CreateTime { get; set; }
 
-    [JsonPropertyName("mentionable")] public int? Mentionable { get; set; }
-    [JsonIgnore] public bool IsExist => DelTag == 1;
-    [JsonIgnore] public bool IsHoist => Hoist == 1;
-    [JsonIgnore] public bool IsCreator => Creator == 0;
-    [JsonIgnore] public bool CanMention => Mentionable == 1;
     [JsonIgnore] public Permission Permission { get; set; }
 
     [Obsolete("文档标记弃用"), JsonPropertyName("department_id")]

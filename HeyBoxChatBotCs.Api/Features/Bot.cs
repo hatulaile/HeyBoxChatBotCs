@@ -5,11 +5,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Enums;
-using HeyBoxChatBotCs.Api.Features.BotActionResult;
-using HeyBoxChatBotCs.Api.Features.BotRequestDto;
-using HeyBoxChatBotCs.Api.Features.BotRequestDto.Message;
-using HeyBoxChatBotCs.Api.Features.Network;
-using HeyBoxChatBotCs.Api.Features.Network.HttpBody;
+using HeyBoxChatBotCs.Api.Features.Emote;
+using HeyBoxChatBotCs.Api.Network;
+using HeyBoxChatBotCs.Api.Network.HttpBody;
+using HeyBoxChatBotCs.Api.RequestParameters.Emoji;
+using HeyBoxChatBotCs.Api.RequestParameters.Message;
+using HeyBoxChatBotCs.Api.RequestParameters.Role;
+using HeyBoxChatBotCs.Api.RequestResponse;
 
 namespace HeyBoxChatBotCs.Api.Features;
 
@@ -37,7 +39,7 @@ public class Bot
         Instance = this;
     }
 
-    [NotNull] public static Bot? Instance { get; private set; }
+    [AllowNull] public static Bot Instance { get; private set; }
 
     public string Id { get; }
     public string Token { get; }
@@ -62,15 +64,15 @@ public class Bot
         }
 
         BotWebSocket ??= new BotWebSocket(this);
-        await BotWebSocket.Start();
-        await new Loader.Loader().Run();
+        await BotWebSocket.Start().ConfigureAwait(false);
+        await new Loader.Loader().Run().ConfigureAwait(false);
         BotCts = new CancellationTokenSource();
         BotStart?.Invoke(this);
         Log.Info("控制台命令已启用,可以输入!");
-        _ = ConsoleCommandProcessor.Run();
+        _ = ConsoleCommandProcessor.RunAsync();
         try
         {
-            await Task.Delay(Timeout.Infinite, BotCts.Token);
+            await Task.Delay(Timeout.Infinite, BotCts.Token).ConfigureAwait(false);
         }
         catch (ObjectDisposedException)
         {
@@ -102,7 +104,9 @@ public class Bot
         return Task.CompletedTask;
     }
 
-    protected static void ThrowIfNotOk<T>(HttpResponseMessageValue<BotOperationResult<T>?> res)
+    #region Bot
+
+    protected static void ThrowIfNotOk<T>(HttpResponseMessageValue<BotResponse<T>?> res)
     {
         if (res.Value is null)
         {
@@ -115,7 +119,7 @@ public class Bot
         }
     }
 
-    protected async Task<HttpResponseMessageValue<BotOperationResult<T>>> BotGetAsync<T>(BotOperation operation,
+    protected async Task<T> BotGetAsync<T>(BotOperations operations,
         NameValueCollection? extraQuery = null)
     {
         if (BotCts is null || BotCts.IsCancellationRequested)
@@ -123,162 +127,178 @@ public class Bot
             throw new Exception("Bot 暂未启动");
         }
 
-        if (!BotRequestUrl.TryGetUri(operation, out Uri? uri, extraQuery))
+        if (!BotRequestUrl.TryGetUri(operations, out Uri? uri, extraQuery))
         {
-            throw new Exception($"Bot发送{operation.ToString()}时未找到URI!");
+            throw new Exception($"Bot发送{operations.ToString()}时未找到URI!");
         }
 
-        HttpResponseMessageValue<BotOperationResult<T>?> res = await HttpRequest.Get<BotOperationResult<T>>(uri,
+        HttpResponseMessageValue<BotResponse<T>?> res = await HttpRequest.GetAsync<BotResponse<T>>(
+            uri,
             new Dictionary<string, string>
             {
                 { "token", Token }
-            });
+            }).ConfigureAwait(false);
         ThrowIfNotOk(res);
-        return res!;
+        return res.Value!.Result;
     }
 
-    protected async Task<HttpResponseMessageValue<BotOperationResult<T>>> BotSendRequestAsync<T>(object body,
-        BotOperation operation,
+    protected async Task<T> BotSendAsync<T>(object body,
+        BotOperations operations,
         string contentType = "application/json")
     {
-        if (BotCts is null || BotCts.IsCancellationRequested)
-        {
-            throw new Exception("Bot 暂未启动");
-        }
-
-        if (!BotRequestUrl.TryGetUri(operation, out Uri? uri))
-        {
-            throw new Exception($"Bot发送{operation.ToString()}时未找到URI!");
-        }
-
         string json = body as string ?? JsonSerializer.Serialize(body, BotOperationJsonSerializerOptions);
-        Log.Debug("BOT动作的JSON为:" + json);
-        HttpResponseMessageValue<BotOperationResult<T>?> res = await HttpRequest.Post<BotOperationResult<T>>(uri,
-            new RawBody(json, contentType),
-            new Dictionary<string, string>
-            {
-                { "token", Token }
-            });
-        ThrowIfNotOk(res);
-        return res!;
+        return await BotSendAsync<T>(new RawBody(json, contentType), operations).ConfigureAwait(false);
     }
 
-    protected async Task<HttpResponseMessageValue<BotOperationResult<T>>> BotSendRequestAsync<T>(FormDataBody body,
-        BotOperation operation)
+    protected async Task<T> BotSendAsync<T>(IHttpBody body,
+        BotOperations operations)
     {
         if (BotCts is null || BotCts.IsCancellationRequested)
         {
             throw new Exception("Bot 暂未启动");
         }
 
-        if (!BotRequestUrl.TryGetUri(operation, out Uri? uri))
+        if (!BotRequestUrl.TryGetUri(operations, out Uri? uri))
         {
-            throw new Exception($"Bot发送{operation.ToString()}时未找到URI!");
+            throw new Exception($"Bot发送{operations.ToString()}时未找到URI!");
         }
 
-        HttpResponseMessageValue<BotOperationResult<T>?> res = await HttpRequest.Post<BotOperationResult<T>>(uri, body,
+        HttpResponseMessageValue<BotResponse<T>?> res = await HttpRequest.PostAsync<BotResponse<T>>(
+            uri,
+            body,
             new Dictionary<string, string>
             {
                 { "token", Token }
-            });
+            }).ConfigureAwait(false);
         ThrowIfNotOk(res);
-        return res!;
+        return res.Value!.Result;
     }
 
-    public async Task<SendMessageResult> SendMessageAsync(MessageBase message)
-    {
-        var res = await BotSendRequestAsync<SendMessageResult>(message, BotOperation.SendMessage);
-        return res.Value.Result;
-    }
+    #endregion
 
-    public async Task<UpdateMarkdownMessageResult> UpdateMarkdownMessageAsync(UpdateMarkdownMessageDto dto)
-    {
-        HttpResponseMessageValue<BotOperationResult<UpdateMarkdownMessageResult>> res =
-            await BotSendRequestAsync<UpdateMarkdownMessageResult>(dto, BotOperation.UpdateMessage);
-        return res.Value.Result;
-    }
-
-    public async Task DeleteMessageAsync(DeleteEmojiDto dto)
-    {
-        var res = await BotSendRequestAsync<object>(dto, BotOperation.DeleteMessage);
-    }
-
+    #region File
 
     public async Task<Uri> UploadAsync(string filePath, string fileName = "")
     {
-        HttpResponseMessageValue<BotOperationResult<UploadResult>> result;
+        UploadResponse result;
         if (!string.IsNullOrEmpty(fileName))
         {
-            result = await BotSendRequestAsync<UploadResult>(
+            result = await BotSendAsync<UploadResponse>(
                 new FormDataBody(new FormDataBodyFile("file", filePath, fileName)),
-                BotOperation.Upload);
+                BotOperations.Upload).ConfigureAwait(false);
         }
         else
         {
-            result = await BotSendRequestAsync<UploadResult>(
+            result = await BotSendAsync<UploadResponse>(
                 new FormDataBody(new FormDataBodyFile("file", filePath)),
-                BotOperation.Upload);
+                BotOperations.Upload).ConfigureAwait(false);
         }
-        return result.Value.Result.Uri;
+
+        return result.Uri;
     }
 
-    public async Task<RoomEmojiResult> GetRoomEmojiAsync(string roomId)
+    #endregion
+
+    #region Message
+
+    public async Task<string> SendMessageAsync(SendMessageParamsBase args)
     {
-        var res = await BotGetAsync<RoomEmojiResult>(BotOperation.GetRoomEmoji, new NameValueCollection
+        var res = await BotSendAsync<SendMessageResponse>(args, BotOperations.SendMessage)
+            .ConfigureAwait(false);
+        return res.MessageId;
+    }
+
+    public async Task UpdateMessageAsync(UpdateMessageParams args)
+    {
+        await BotSendAsync<UpdateMessageResponse>(args, BotOperations.UpdateMessage)
+            .ConfigureAwait(false);
+    }
+
+    public async Task DeleteMessageAsync(DeleteEmoteParams args)
+    {
+        await BotSendAsync<object>(args, BotOperations.DeleteMessage).ConfigureAwait(false);
+    }
+
+
+    public async Task ReplyMessageEmojiAsync(ReplyEmojiParams args)
+    {
+        await BotSendAsync<object>(args, BotOperations.ReplyMessageEmoji).ConfigureAwait(false);
+    }
+
+    #endregion
+
+    #region Emote
+
+    public async Task<IEmote[]> GetRoomEmoteAsync(string roomId)
+    {
+        var res = await BotGetAsync<RoomEmojiResponse>(BotOperations.GetRoomEmote, new NameValueCollection
         {
             { "room_id", roomId }
-        });
-        return res.Value.Result;
+        }).ConfigureAwait(false);
+        return
+        [
+            ..res.Emojis.Select(x =>
+                new Emoji(x.User, roomId, x.MemeInfo.Extensions, x.MemeInfo.Path, x.MemeInfo.CreateTime)),
+            ..res.Stickers.Select(x =>
+                new Sticker(x.User, roomId, x.MemeInfo.Extensions, x.MemeInfo.Path, x.MemeInfo.CreateTime)),
+        ];
     }
+
+
+    public async Task ModifyEmoteNameAsync(ModifyEmoteParams args)
+    {
+        await BotSendAsync<object>(args, BotOperations.EditEmoteName).ConfigureAwait(false);
+    }
+
+    public async Task DeleteEmoteAsync(DeleteEmoteParams args)
+    {
+        await BotSendAsync<object>(args, BotOperations.DeleteEmote).ConfigureAwait(false);
+    }
+
+    #endregion
+
+    #region Role
 
     public async Task<Role[]> GetRoleAsync(string roomId)
     {
-        var res = await BotGetAsync<RoomRoleResult>(BotOperation.GetRoomRole, new NameValueCollection
+        var res = await BotGetAsync<RoomRoleResponse>(BotOperations.GetRoomRole, new NameValueCollection
         {
             { "room_id", roomId }
-        });
-        return res.Value.Result.Roles;
+        }).ConfigureAwait(false);
+        return res.Roles;
     }
 
-    public async Task EditEmojiNameAsync(EditEmojiNameDto dto)
+    public async Task<Role> CreateRoleAsync(CreateRoleParams args)
     {
-        var res = await BotSendRequestAsync<object>(dto, BotOperation.EditEmojiName);
+        var res = await BotSendAsync<CreateRoleResponse>(args, BotOperations.CreateRole).ConfigureAwait(false);
+        return res.Role;
     }
 
-    public async Task DeleteEmojiAsync(DeleteEmojiDto dto)
+    public async Task<Role> ModifyRoleAsync(UpdateRoleParams args)
     {
-        var res = await BotSendRequestAsync<object>(dto, BotOperation.DeleteEmoji);
+        var res = await BotSendAsync<ModifyRoleResponse>(args, BotOperations.UpdateRole).ConfigureAwait(false);
+        return res.Role;
     }
 
-    public async Task<Role> CreateRoleAsync(CreateRoleDto dto)
+    public async Task<OperationUserRoleResponse.RoleUser> GiveRoleAsync(ModifyRoleParams args)
     {
-        var res = await BotSendRequestAsync<CreateRoleResult>(dto, BotOperation.CreateRole);
-        return res.Value.Result.Role;
+        OperationUserRoleResponse res =
+            await BotSendAsync<OperationUserRoleResponse>(args, BotOperations.GiveUserRole).ConfigureAwait(false);
+        return res.User;
     }
 
-    public async Task<Role> UpdateRoleAsync(UpdateRoleDto dto)
+    public async Task<OperationUserRoleResponse.RoleUser> RevokeRoleAsync(ModifyRoleParams args)
     {
-        var res = await BotSendRequestAsync<UpdateRoleResult>(dto, BotOperation.UpdateRole); ;
-        return res.Value.Result.Role;
+        OperationUserRoleResponse res =
+            await BotSendAsync<OperationUserRoleResponse>(args, BotOperations.RevokeUserRole)
+                .ConfigureAwait(false);
+        return res.User;
     }
 
-    public async Task<OperationUserRoleResult.RoleUser> GiveRoleAsync(OperationUserRoleDto dto)
+    public async Task DeleteRoleAsync(DeleteRoleParams args)
     {
-        HttpResponseMessageValue<BotOperationResult<OperationUserRoleResult>> res =
-            await BotSendRequestAsync<OperationUserRoleResult>(dto, BotOperation.GiveUserRole);
-        return res.Value.Result.User;
+        await BotSendAsync<object>(args, BotOperations.DeleteRole).ConfigureAwait(false);
     }
 
-    public async Task<OperationUserRoleResult.RoleUser> RevokeRoleAsync(OperationUserRoleDto dto)
-    {
-        HttpResponseMessageValue<BotOperationResult<OperationUserRoleResult>> res =
-            await BotSendRequestAsync<OperationUserRoleResult>(dto, BotOperation.RevokeUserRole);
-        return res.Value.Result.User;
-    }
-
-    public async Task DeleteRoleAsync(DeleteRoomRoleDto dto)
-    {
-        HttpResponseMessageValue<BotOperationResult<object>> res =
-            await BotSendRequestAsync<object>(dto, BotOperation.DeleteRole);
-    }
+    #endregion
 }

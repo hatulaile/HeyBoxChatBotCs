@@ -29,9 +29,9 @@ public class Loader
 
     public async Task Run()
     {
-        await LoadDependencies();
-        await LoadPlugins();
-        await ConfigManager.Reload();
+        await LoadDependencies().ConfigureAwait(false);
+        await LoadPlugins().ConfigureAwait(false);
+        await ConfigManager.Reload().ConfigureAwait(false);
         await EnablePlugins();
     }
 
@@ -55,7 +55,7 @@ public class Loader
         Log.Info("开始加载插件~");
         foreach (string filePath in Directory.GetFiles(Paths.PluginPath, "*.dll"))
         {
-            Assembly? assembly = await LoadAssembly(filePath);
+            Assembly? assembly = await LoadAssembly(filePath).ConfigureAwait(false);
             if (assembly is null)
             {
                 continue;
@@ -66,7 +66,7 @@ public class Loader
 
         foreach (Assembly assembly in LoadedAssembly.Where(x => !Dependencies.Contains(x)))
         {
-            IPlugin<IConfig>? plugin = await CreatePlugin(assembly);
+            IPlugin<IConfig>? plugin = await CreatePlugin(assembly).ConfigureAwait(false);
             if (plugin is null)
                 continue;
             var attribute =
@@ -160,7 +160,7 @@ public class Loader
             Log.Info($"加载位于 {Paths.DependenciesPath} 的依赖程序集!");
             foreach (string filePath in Directory.GetFiles(Paths.DependenciesPath, "*.dll"))
             {
-                Assembly? assembly = await LoadAssembly(filePath);
+                Assembly? assembly = await LoadAssembly(filePath).ConfigureAwait(false);
                 if (assembly is null)
                 {
                     continue;
@@ -213,12 +213,12 @@ public class Loader
             }
         }
 
-        await DisablePlugins();
+        await DisablePlugins().ConfigureAwait(false);
         Plugins.Clear();
         Locations.Clear();
-        await LoadPlugins();
-        await ConfigManager.Reload();
-        await EnablePlugins();
+        await LoadPlugins().ConfigureAwait(false);
+        await ConfigManager.Reload().ConfigureAwait(false);
+        await EnablePlugins().ConfigureAwait(false);
     }
 
     public static Task EnablePlugins()

@@ -14,11 +14,11 @@ public static class ConsoleCommandProcessor
     internal static async Task InvokeConsoleCommandAsync(string input)
     {
         ConsoleInput?.Invoke(input);
-        await ProcessorInput(input);
+        await ProcessorInputAsync(input).ConfigureAwait(false);
     }
 
 
-    private static async Task ProcessorInput(string input)
+    private static async Task ProcessorInputAsync(string input)
     {
         try
         {
@@ -53,7 +53,7 @@ public static class ConsoleCommandProcessor
         }
     }
 
-    internal static async Task Run()
+    internal static async Task RunAsync()
     {
         if (ConsoleReadCts is { IsCancellationRequested: true })
         {
@@ -65,7 +65,7 @@ public static class ConsoleCommandProcessor
         ConsoleReadCts = new CancellationTokenSource();
         while (!ConsoleReadCts.IsCancellationRequested)
         {
-            string? consoleInput = await Console.In.ReadLineAsync(ConsoleReadCts.Token);
+            string? consoleInput = await Console.In.ReadLineAsync(ConsoleReadCts.Token).ConfigureAwait(false);
             if (ConsoleReadCts.IsCancellationRequested)
             {
                 return;

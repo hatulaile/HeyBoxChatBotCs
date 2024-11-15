@@ -1,6 +1,6 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.Interfaces;
 using HeyBoxChatBotCs.Api.Features;
-using HeyBoxChatBotCs.Api.Features.BotRequestDto.Message;
+using HeyBoxChatBotCs.Api.RequestParameters.Message;
 using HeyBoxChatBotCs.Api.ServerMessageHandler.ServerMessageData.User;
 
 namespace HeyBoxChatBotCs.Api.Commands.CommandSystem;
@@ -45,7 +45,7 @@ public static class UserCommandProcessor
             {
                 Log.Debug($"返回给用户:{response}");
                 await Bot.Instance.SendMessageAsync(
-                    new MarkdownMessageDto(
+                    new SendMarkdownMessageParams(
                         REPLY_MESSAGE.Replace("%USERID%", data.User.UserId.ToString()).Replace("%MESSAGE%", response),
                         data.Room, data.Channel, data.MessageId, [data.User]));
             }

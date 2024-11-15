@@ -1,7 +1,7 @@
 ﻿using HeyBoxChatBotCs.Api.Commands.CommandSystem;
 using HeyBoxChatBotCs.Api.Commands.Interfaces;
 using HeyBoxChatBotCs.Api.Features;
-using HeyBoxChatBotCs.Api.Features.BotRequestDto.Message;
+using HeyBoxChatBotCs.Api.RequestParameters.Message;
 
 namespace TestPlugin;
 
@@ -10,7 +10,7 @@ public class PingCommand : IUserCommand
 {
     public async Task<string> Execute(UserCommandArgs args)
     {
-        await Bot.Instance.SendMessageAsync(new MarkdownMessageDto("""
+        await Bot.Instance.SendMessageAsync(new SendMarkdownMessageParams("""
                                                                 | Id | Name | Age |
                                                                 |:--:|:----:|:---:|
                                                                 |  0 | Jack |  12 |

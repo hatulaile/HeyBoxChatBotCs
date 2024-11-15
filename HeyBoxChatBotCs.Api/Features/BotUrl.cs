@@ -17,73 +17,77 @@ public static class BotRequestUrl
         return new RequestUri(baseUrl, path, query);
     }
 
-    public static FrozenDictionary<BotOperation, RequestUri> BotActionToUri { get; } =
-        new Dictionary<BotOperation, RequestUri>
+    public static FrozenDictionary<BotOperations, RequestUri> BotActionToUri { get; } =
+        new Dictionary<BotOperations, RequestUri>
         {
             {
-                BotOperation.Connect,
+                BotOperations.Connect,
                 CreateRequestUri(Bot.WS_CONNECT_URI, "/chatroom/ws/connect")
             },
             {
-                BotOperation.SendMessage,
+                BotOperations.SendMessage,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/channel_msg/send")
             },
             {
-                BotOperation.UpdateMessage,
+                BotOperations.UpdateMessage,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/channel_msg/update")
             },
             {
-                BotOperation.DeleteMessage,
+                BotOperations.DeleteMessage,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/channel_msg/delete")
             },
             {
-                BotOperation.Upload,
+                BotOperations.ReplyMessageEmoji,
+                CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/channel_msg/emoji/reply")
+            },
+            {
+                BotOperations.Upload,
                 CreateRequestUri(Bot.UPLOAD_URI, "/upload")
             },
             {
-                BotOperation.GetRoomEmoji,
+                BotOperations.GetRoomEmote,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v3/msg/meme/room/list")
             },
             {
-                BotOperation.GetRoomRole,
+                BotOperations.GetRoomRole,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/room_role/roles")
             },
             {
-                BotOperation.EditEmojiName,
+                BotOperations.EditEmoteName,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/msg/meme/room/edit")
             },
             {
-                BotOperation.DeleteEmoji,
+                BotOperations.DeleteEmote,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/msg/meme/room/del")
             },
             {
-                BotOperation.CreateRole,
+                BotOperations.CreateRole,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/room_role/create")
             },
             {
-                BotOperation.UpdateRole,
+                BotOperations.UpdateRole,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/room_role/update")
             },
             {
-                BotOperation.DeleteRole,
+                BotOperations.DeleteRole,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/room_role/delete")
             },
             {
-                BotOperation.GiveUserRole,
+                BotOperations.GiveUserRole,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/room_role/grant")
             },
             {
-                BotOperation.RevokeUserRole,
+                BotOperations.RevokeUserRole,
                 CreateRequestUri(Bot.REQUEST_URI, "/chatroom/v2/room_role/revoke")
             },
         }.ToFrozenDictionary();
 
 
-    public static bool TryGetUri(BotOperation operation, [NotNullWhen(true)] out Uri? uri,
+    public static bool TryGetUri(BotOperations operations, [NotNullWhen(true)] out Uri? uri,
         NameValueCollection? extraQuery = null)
     {
         uri = null;
-        if (!BotActionToUri.TryGetValue(operation, out RequestUri? requestUri))
+        if (!BotActionToUri.TryGetValue(operations, out RequestUri? requestUri))
         {
             return false;
         }
@@ -92,14 +96,14 @@ public static class BotRequestUrl
         return true;
     }
 
-    public static Uri GetUri(BotOperation operation, NameValueCollection? extraQuery = null)
+    public static Uri GetUri(BotOperations operations, NameValueCollection? extraQuery = null)
     {
-        if (BotActionToUri.TryGetValue(operation, out RequestUri? requestUri))
+        if (BotActionToUri.TryGetValue(operations, out RequestUri? requestUri))
         {
             return HttpMisc.ConstructUrl(requestUri, extraQuery);
         }
 
-        throw new Exception($"获取BOT动作地址失败:{operation.ToString()}");
+        throw new Exception($"获取BOT动作地址失败:{operations.ToString()}");
     }
 }
 
